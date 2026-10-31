@@ -4,7 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Krypto-Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --akzent: #8c7cf0;
+    --akzent-glanz: rgba(140, 124, 240, 0.35);
+  }
   * {
     box-sizing: border-box;
   }
@@ -12,14 +19,16 @@
     overflow-x: hidden;
   }
   body {
-    font-family: Arial, sans-serif;
-    background: #1e1e2e;
+    font-family: "Inter", Arial, sans-serif;
+    background: linear-gradient(160deg, #1b1b2f 0%, #23233f 45%, #1b1b2f 100%);
     color: #eee;
     padding: 20px;
   }
   h1 {
     text-align: center;
     font-size: 26px;
+    color: var(--akzent);
+    text-shadow: 0 0 20px var(--akzent-glanz);
   }
   #status {
     text-align: center;
@@ -51,38 +60,87 @@
     font-size: 13px;
     width: 180px;
     max-width: 100%;
+    font-family: inherit;
   }
-  .tabelle-wrapper {
-    max-width: 600px;
-    margin: 20px auto;
-    overflow-x: auto;
+  .steuerung select:focus {
+    outline: none;
+    border-color: var(--akzent);
+    box-shadow: 0 0 0 2px var(--akzent-glanz);
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
+
+  /* --- Karten statt Tabelle --- */
+  .karten-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 0 10px;
   }
-  th, td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #333;
-    white-space: nowrap;
+  .coin-karte {
+    background: linear-gradient(145deg, #2b2b45, #22223a);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    animation: einblenden 0.5s ease forwards;
   }
-  .gruen { color: #4caf50; }
-  .rot { color: #f44336; }
-  .coin-zelle {
+  @keyframes einblenden {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .karte-kopf {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 10px;
+  }
+  .karte-name {
+    font-weight: 600;
+    font-size: 15px;
   }
   .logo {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     flex-shrink: 0;
   }
+  .karte-preis {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 4px 0 8px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+  }
+  .karte-preis.blitz {
+    background-color: var(--akzent-glanz);
+  }
+  .karte-aenderung {
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .karte-sparkline {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .gruen { color: #4caf50; }
+  .rot { color: #f44336; }
+  .karte-aenderung.gruen { background: rgba(76, 175, 80, 0.14); }
+  .karte-aenderung.rot { background: rgba(244, 67, 54, 0.14); }
+
   .chart-titel {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 10px;
     color: #ccc;
     font-size: 16px;
   }
@@ -124,7 +182,7 @@
     top: 0;
     bottom: 0;
     width: 1px;
-    background: #555;
+    background: var(--akzent);
   }
   .chart-balken {
     position: absolute;
@@ -135,7 +193,7 @@
   .chart-balken.gruen { background: #4caf50; }
   .chart-balken.rot { background: #f44336; }
   .chart-wert {
-    width: 55px;
+    width: 65px;
     font-size: 13px;
     flex-shrink: 0;
   }
@@ -166,11 +224,13 @@
     h1 { font-size: 20px; }
     #status { font-size: 12px; }
     .steuerung { font-size: 12px; }
-    th, td { padding: 6px; font-size: 12px; }
-    .logo { width: 20px; height: 20px; }
+    .karten-grid { grid-template-columns: 1fr; gap: 12px; }
+    .coin-karte { padding: 12px; }
+    .karte-preis { font-size: 19px; }
+    .logo { width: 24px; height: 24px; }
     .chart-label { width: 100px; font-size: 11px; gap: 4px; }
     .chart-logo { width: 14px; height: 14px; }
-    .chart-wert { width: 45px; font-size: 11px; }
+    .chart-wert { width: 55px; font-size: 11px; }
     .legende { gap: 14px; font-size: 12px; }
   }
 </style>
@@ -191,16 +251,7 @@
   </select>
 </div>
 
-<div class="tabelle-wrapper">
-  <table id="tabelle" style="display:none">
-    <tr>
-      <th>Coin</th>
-      <th>Preis (EUR)</th>
-      <th>24h %</th>
-      <th>7 Tage</th>
-    </tr>
-  </table>
-</div>
+<div id="karten" class="karten-grid" style="display:none"></div>
 
 <p class="chart-titel">24h-Veränderung in %</p>
 <div class="legende">
@@ -229,6 +280,8 @@
   let letzteDaten = null;     // letzte erfolgreich geladene Preisliste
   let letzterErfolg = null;   // Uhrzeit der letzten erfolgreichen Aktualisierung
   const verlaufsDaten = {};   // coin-id -> Array von Preisen der letzten 7 Tage
+  const letztePreise = {};    // coin-id -> zuletzt angezeigter Preis (für Blitz-Animation)
+  let ersterAufbau = true;    // true = Karten sollen beim nächsten Zeichnen einblenden
 
   // --- Preise laden ---
   function kurseLaden() {
@@ -260,7 +313,7 @@
       });
   }
 
-  // --- 7-Tage-Verlauf laden (für die Sparkline in der Tabelle) ---
+  // --- 7-Tage-Verlauf laden (für die Sparkline in der Karte) ---
   // Nacheinander statt gleichzeitig, damit die kostenlose API nicht mit 6 parallelen
   // Anfragen das Rate-Limit auslöst (führt sonst zu HTTP 429 "Too Many Requests").
   function warte(ms) {
@@ -311,7 +364,7 @@
   function sparklineSvg(preise) {
     if (!preise || preise.length < 2) return "…";
 
-    const breite = 70, hoehe = 24;
+    const breite = 90, hoehe = 26;
     const min = Math.min(...preise);
     const max = Math.max(...preise);
     const spanne = (max - min) || 1;
@@ -329,39 +382,60 @@
     </svg>`;
   }
 
-  // Zeichnet sowohl Tabelle als auch Balkendiagramm neu (z.B. nach Sortierungswechsel)
+  // Zeichnet sowohl Karten als auch Balkendiagramm neu (z.B. nach Sortierungswechsel)
   function alleAnzeigen() {
     const eintraege = sortierteCoins();
     if (eintraege.length === 0) return;
 
-    tabelleZeichnen(eintraege);
+    kartenZeichnen(eintraege);
     balkendiagrammZeichnen(eintraege);
 
-    document.getElementById("tabelle").style.display = "table";
+    document.getElementById("karten").style.display = "grid";
   }
 
-  function tabelleZeichnen(eintraege) {
-    const tabelle = document.getElementById("tabelle");
+  function kartenZeichnen(eintraege) {
+    const grid = document.getElementById("karten");
+    grid.innerHTML = "";
 
-    // alte Zeilen entfernen (außer der Kopfzeile)
-    while (tabelle.rows.length > 1) {
-      tabelle.deleteRow(1);
-    }
-
-    eintraege.forEach(({ coin, info }) => {
+    eintraege.forEach(({ coin, info }, index) => {
       const preis = info.current_price;
       const veraenderung = info.price_change_percentage_24h;
       const farbe = veraenderung >= 0 ? "gruen" : "rot";
+      const pfeil = veraenderung >= 0 ? "▲" : "▼";
       const vorzeichen = veraenderung >= 0 ? "+" : "";
 
-      const zeile = document.createElement("tr");
-      zeile.innerHTML = `
-        <td class="coin-zelle"><img class="logo" src="${info.image}" alt="${coin.name}"> ${coin.name}</td>
-        <td>${preis.toFixed(6)} €</td>
-        <td class="${farbe}">${vorzeichen}${veraenderung.toFixed(2)} %</td>
-        <td>${sparklineSvg(verlaufsDaten[coin.id])}</td>
+      // Preis mit vorherigem Stand vergleichen, um kurz "aufzublitzen"
+      const alterPreis = letztePreise[coin.id];
+      const geaendert = alterPreis !== undefined && alterPreis !== preis;
+      letztePreise[coin.id] = preis;
+
+      const karte = document.createElement("div");
+      karte.className = "coin-karte";
+      if (ersterAufbau) {
+        karte.style.animationDelay = (index * 0.08) + "s";
+      } else {
+        // Einblend-Animation nur beim allerersten Aufbau, nicht bei jedem Refresh
+        karte.style.animation = "none";
+        karte.style.opacity = "1";
+      }
+
+      karte.innerHTML = `
+        <div class="karte-kopf">
+          <img class="logo" src="${info.image}" alt="${coin.name}">
+          <span class="karte-name">${coin.name}</span>
+        </div>
+        <div class="karte-preis${geaendert ? " blitz" : ""}">${preis.toFixed(6)} €</div>
+        <div class="karte-aenderung ${farbe}">${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %</div>
+        <div class="karte-sparkline">${sparklineSvg(verlaufsDaten[coin.id])}</div>
       `;
-      tabelle.appendChild(zeile);
+      grid.appendChild(karte);
+    });
+
+    ersterAufbau = false;
+
+    // Blitz-Markierung nach kurzer Zeit wieder entfernen
+    grid.querySelectorAll(".blitz").forEach(el => {
+      setTimeout(() => el.classList.remove("blitz"), 900);
     });
   }
 
@@ -378,6 +452,7 @@
     eintraege.forEach(({ coin, info }) => {
       const veraenderung = info.price_change_percentage_24h;
       const farbe = veraenderung >= 0 ? "gruen" : "rot";
+      const pfeil = veraenderung >= 0 ? "▲" : "▼";
       const vorzeichen = veraenderung >= 0 ? "+" : "";
       const breiteProzent = (Math.abs(veraenderung) / maxAusschlag) * 50; // halbe Breite = 0% bis Maximum
 
@@ -394,7 +469,7 @@
           <div class="chart-nulllinie"></div>
           <div class="chart-balken ${farbe}" style="${balkenStyle}"></div>
         </div>
-        <div class="chart-wert">${vorzeichen}${veraenderung.toFixed(2)} %</div>
+        <div class="chart-wert">${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %</div>
       `;
       chart.appendChild(zeile);
     });
