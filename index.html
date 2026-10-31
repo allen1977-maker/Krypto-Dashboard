@@ -146,62 +146,37 @@
   }
   .chart {
     max-width: 600px;
-    margin: 15px auto 30px;
+    margin: 15px auto 10px;
   }
-  .chart-zeile {
+  .linien-chart {
+    width: 100%;
+    height: 220px;
+    display: block;
+  }
+  .linie {
+    opacity: 0;
+    animation: linieEinblenden 0.8s ease forwards;
+  }
+  @keyframes linieEinblenden {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .chart-achsen {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .chart-label {
-    width: 150px;
-    font-size: 13px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-  .chart-logo {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .chart-flaeche {
-    position: relative;
-    flex: 1;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 4px;
-  }
-  .chart-nulllinie {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--akzent);
-  }
-  .chart-balken {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    border-radius: 4px;
-  }
-  .chart-balken.gruen { background: #4caf50; }
-  .chart-balken.rot { background: #f44336; }
-  .chart-wert {
-    width: 65px;
-    font-size: 13px;
-    flex-shrink: 0;
+    justify-content: space-between;
+    max-width: 600px;
+    margin: 4px auto 30px;
+    padding: 0 4px;
+    font-size: 12px;
+    color: #888;
   }
   .legende {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 24px;
+    gap: 8px 20px;
     margin-top: 10px;
+    padding: 0 10px;
     font-size: 13px;
     color: #ccc;
   }
@@ -215,9 +190,6 @@
     height: 12px;
     border-radius: 3px;
   }
-  .legende-farbe.gruen { background: #4caf50; }
-  .legende-farbe.rot { background: #f44336; }
-
   /* Mobile-Anpassungen für kleine Bildschirme */
   @media (max-width: 480px) {
     body { padding: 10px; }
@@ -228,10 +200,8 @@
     .coin-karte { padding: 12px; }
     .karte-preis { font-size: 19px; }
     .logo { width: 24px; height: 24px; }
-    .chart-label { width: 100px; font-size: 11px; gap: 4px; }
-    .chart-logo { width: 14px; height: 14px; }
-    .chart-wert { width: 55px; font-size: 11px; }
-    .legende { gap: 14px; font-size: 12px; }
+    .linien-chart { height: 180px; }
+    .legende { gap: 10px 14px; font-size: 11px; }
   }
 </style>
 </head>
@@ -253,12 +223,10 @@
 
 <div id="karten" class="karten-grid" style="display:none"></div>
 
-<p class="chart-titel">24h-Veränderung in %</p>
-<div class="legende">
-  <div class="legende-eintrag"><span class="legende-farbe gruen"></span> Gestiegen</div>
-  <div class="legende-eintrag"><span class="legende-farbe rot"></span> Gefallen</div>
-</div>
+<p class="chart-titel">7-Tage-Verlauf (%)</p>
 <div id="chart" class="chart"></div>
+<div class="chart-achsen"><span>vor 7 Tagen</span><span>heute</span></div>
+<div id="chart-legende" class="legende"></div>
 
 <script>
   // CoinGecko-IDs der 6 Coins
@@ -282,6 +250,8 @@
   const verlaufsDaten = {};   // coin-id -> Array von Preisen der letzten 7 Tage
   const letztePreise = {};    // coin-id -> zuletzt angezeigter Preis (für Blitz-Animation)
   let ersterAufbau = true;    // true = Karten sollen beim nächsten Zeichnen einblenden
+  let ersteChartAnzeige = true; // true = Linien im Chart sollen beim nächsten Zeichnen einblenden
+  const CHART_FARBEN = ["#8c7cf0", "#4fd1c5", "#f6ad55", "#f687b3", "#68d391", "#63b3ed"];
 
   // --- Preise laden ---
   function kurseLaden() {
@@ -388,7 +358,7 @@
     if (eintraege.length === 0) return;
 
     kartenZeichnen(eintraege);
-    balkendiagrammZeichnen(eintraege);
+    linienChartZeichnen(eintraege);
 
     document.getElementById("karten").style.display = "grid";
   }
@@ -439,40 +409,62 @@
     });
   }
 
-  // Zeichnet ein Balkendiagramm (von einer Nulllinie in der Mitte aus) für die 24h-Veränderung
-  function balkendiagrammZeichnen(eintraege) {
+  // Zeichnet ein gemeinsames Liniendiagramm: 7-Tage-Verlauf aller Coins, normiert in % seit Tag 1
+  function linienChartZeichnen(eintraege) {
     const chart = document.getElementById("chart");
-    chart.innerHTML = "";
+    const legende = document.getElementById("chart-legende");
 
-    // größten Ausschlag (positiv oder negativ) ermitteln, um die Balken-Skala festzulegen
-    const maxAusschlag = Math.max(
-      ...eintraege.map(({ info }) => Math.abs(info.price_change_percentage_24h))
-    ) || 1;
+    const serien = eintraege
+      .map(({ coin }, index) => {
+        const preise = verlaufsDaten[coin.id];
+        if (!preise || preise.length < 2) return null;
+        const ersterPreis = preise[0];
+        const prozente = preise.map(p => ((p - ersterPreis) / ersterPreis) * 100);
+        return { coin, farbe: CHART_FARBEN[index % CHART_FARBEN.length], prozente };
+      })
+      .filter(Boolean);
 
-    eintraege.forEach(({ coin, info }) => {
-      const veraenderung = info.price_change_percentage_24h;
-      const farbe = veraenderung >= 0 ? "gruen" : "rot";
-      const pfeil = veraenderung >= 0 ? "▲" : "▼";
-      const vorzeichen = veraenderung >= 0 ? "+" : "";
-      const breiteProzent = (Math.abs(veraenderung) / maxAusschlag) * 50; // halbe Breite = 0% bis Maximum
+    if (serien.length === 0) {
+      chart.innerHTML = '<p style="text-align:center;color:#999">Lade 7-Tage-Verlauf…</p>';
+      legende.innerHTML = "";
+      return;
+    }
 
-      const zeile = document.createElement("div");
-      zeile.className = "chart-zeile";
+    const breite = 600, hoehe = 220, polster = 10;
+    const alleWerte = serien.flatMap(s => s.prozente).concat(0); // 0 immer mit einschließen, damit die Nulllinie sichtbar bleibt
+    const min = Math.min(...alleWerte);
+    const max = Math.max(...alleWerte);
+    const spanne = (max - min) || 1;
 
-      const balkenStyle = veraenderung >= 0
-        ? `left: 50%; width: ${breiteProzent}%;`
-        : `right: 50%; width: ${breiteProzent}%;`;
+    function y(wert) {
+      return hoehe - polster - ((wert - min) / spanne) * (hoehe - 2 * polster);
+    }
 
-      zeile.innerHTML = `
-        <div class="chart-label"><img class="chart-logo" src="${info.image}" alt="${coin.name}"> ${coin.name}</div>
-        <div class="chart-flaeche">
-          <div class="chart-nulllinie"></div>
-          <div class="chart-balken ${farbe}" style="${balkenStyle}"></div>
-        </div>
-        <div class="chart-wert">${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %</div>
-      `;
-      chart.appendChild(zeile);
+    const nullY = y(0).toFixed(1);
+    let svgInhalt = `<line x1="0" y1="${nullY}" x2="${breite}" y2="${nullY}" stroke="#555" stroke-width="1" stroke-dasharray="4 4" />`;
+
+    serien.forEach((serie, index) => {
+      const n = serie.prozente.length;
+      const punkte = serie.prozente.map((wert, i) => {
+        const x = (i / (n - 1)) * breite;
+        return `${x.toFixed(1)},${y(wert).toFixed(1)}`;
+      }).join(" ");
+
+      // Beim allerersten Zeichnen blenden die Linien nacheinander ein, danach nicht mehr
+      const animation = ersteChartAnzeige
+        ? `style="animation-delay:${(index * 0.15).toFixed(2)}s"`
+        : `style="animation:none;opacity:1"`;
+
+      svgInhalt += `<polyline points="${punkte}" fill="none" stroke="${serie.farbe}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="linie" ${animation} />`;
     });
+
+    chart.innerHTML = `<svg viewBox="0 0 ${breite} ${hoehe}" preserveAspectRatio="none" class="linien-chart">${svgInhalt}</svg>`;
+
+    legende.innerHTML = serien.map(serie =>
+      `<div class="legende-eintrag"><span class="legende-farbe" style="background:${serie.farbe}"></span> ${serie.coin.name}</div>`
+    ).join("");
+
+    ersteChartAnzeige = false;
   }
 
   document.getElementById("sortierung").addEventListener("change", alleAnzeigen);
