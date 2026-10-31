@@ -207,6 +207,32 @@
     height: 12px;
     border-radius: 3px;
   }
+  .video-abschnitt {
+    max-width: 320px;
+    margin: 40px auto 20px;
+    text-align: center;
+    padding: 0 10px;
+  }
+  .video-abschnitt h2 {
+    font-size: 18px;
+    color: var(--akzent);
+    margin-bottom: 12px;
+  }
+  .video-abschnitt video {
+    width: 100%;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+  .video-abschnitt a {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--akzent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .video-abschnitt a:hover {
+    text-decoration: underline;
+  }
   /* Mobile-Anpassungen für kleine Bildschirme */
   @media (max-width: 480px) {
     body { padding: 10px; }
@@ -245,6 +271,16 @@
 <div id="chart" class="chart"></div>
 <div class="chart-achsen"><span>vor 7 Tagen</span><span>heute</span></div>
 <div id="chart-legende" class="legende"></div>
+
+<div class="video-abschnitt">
+  <h2>📱 Tangem erklärt</h2>
+  <video controls preload="metadata">
+    <source src="tangem_erklaert_hell_EN_9x16.mp4" type="video/mp4">
+    Dein Browser unterstützt das Video-Element nicht.
+  </video>
+  <br>
+  <a href="https://tangem.com/invite/ALEN" target="_blank" rel="noopener">tangem.com/invite/ALEN</a>
+</div>
 
 <script>
   // CoinGecko-IDs der 6 Coins
