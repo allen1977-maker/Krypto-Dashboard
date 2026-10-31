@@ -30,6 +30,23 @@
     color: var(--akzent);
     text-shadow: 0 0 20px var(--akzent-glanz);
   }
+  .smiley {
+    cursor: pointer;
+  }
+  .iva-tooltip {
+    text-align: center;
+    font-size: 13px;
+    color: var(--akzent);
+    margin: -4px 0 6px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.25s ease;
+  }
+  .iva-tooltip.sichtbar {
+    opacity: 1;
+    max-height: 20px;
+  }
   #status {
     text-align: center;
     color: #999;
@@ -207,7 +224,8 @@
 </head>
 <body>
 
-<h1>Krypto-Dashboard - (Iva is GREAT 😊)</h1>
+<h1>Krypto-Dashboard <span id="iva-smiley" class="smiley" role="button" tabindex="0" aria-label="Iva is GREAT anzeigen">😊</span></h1>
+<p id="iva-tooltip" class="iva-tooltip">Iva is GREAT</p>
 <p id="status">Lade Daten...</p>
 
 <div class="steuerung">
@@ -466,6 +484,13 @@
 
     ersteChartAnzeige = false;
   }
+
+  // Smiley in der Überschrift: bei Klick/Tipp kurz "Iva is GREAT" einblenden (funktioniert auch auf dem Handy)
+  document.getElementById("iva-smiley").addEventListener("click", () => {
+    const tooltip = document.getElementById("iva-tooltip");
+    tooltip.classList.add("sichtbar");
+    setTimeout(() => tooltip.classList.remove("sichtbar"), 2500);
+  });
 
   document.getElementById("sortierung").addEventListener("change", alleAnzeigen);
 
