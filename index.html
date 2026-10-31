@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krypto-Dashboard</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    overflow-x: hidden;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background: #1e1e2e;
+    color: #eee;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 26px;
+  }
+  #status {
+    text-align: center;
+    color: #999;
+    overflow-wrap: break-word;
+    padding: 0 10px;
+  }
+  #status.fehler {
+    color: #ffb74d;
+  }
+  .steuerung {
+    max-width: 600px;
+    margin: 14px auto 0;
+    text-align: center;
+    font-size: 14px;
+    padding: 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+  }
+  .steuerung select {
+    background: #2a2a3d;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    width: 180px;
+    max-width: 100%;
+  }
+  .tabelle-wrapper {
+    max-width: 600px;
+    margin: 20px auto;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+    white-space: nowrap;
+  }
+  .gruen { color: #4caf50; }
+  .rot { color: #f44336; }
+  .coin-zelle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .chart-titel {
+    text-align: center;
+    margin-top: 30px;
+    color: #ccc;
+    font-size: 16px;
+  }
+  .chart {
+    max-width: 600px;
+    margin: 15px auto 30px;
+  }
+  .chart-zeile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .chart-label {
+    width: 150px;
+    font-size: 13px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .chart-logo {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .chart-flaeche {
+    position: relative;
+    flex: 1;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+  }
+  .chart-nulllinie {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #555;
+  }
+  .chart-balken {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 4px;
+  }
+  .chart-balken.gruen { background: #4caf50; }
+  .chart-balken.rot { background: #f44336; }
+  .chart-wert {
+    width: 55px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .legende {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #ccc;
+  }
+  .legende-eintrag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legende-farbe {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+  .legende-farbe.gruen { background: #4caf50; }
+  .legende-farbe.rot { background: #f44336; }
+
+  /* Mobile-Anpassungen für kleine Bildschirme */
+  @media (max-width: 480px) {
+    body { padding: 10px; }
+    h1 { font-size: 20px; }
+    #status { font-size: 12px; }
+    .steuerung { font-size: 12px; }
+    th, td { padding: 6px; font-size: 12px; }
+    .logo { width: 20px; height: 20px; }
+    .chart-label { width: 100px; font-size: 11px; gap: 4px; }
+    .chart-logo { width: 14px; height: 14px; }
+    .chart-wert { width: 45px; font-size: 11px; }
+    .legende { gap: 14px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Krypto-Dashboard - (Iva is GREAT 😊)</h1>
+<p id="status">Lade Daten...</p>
+
+<div class="steuerung">
+  <label for="sortierung">Sortieren nach:</label>
+  <select id="sortierung">
+    <option value="standard">Standard</option>
+    <option value="preis-auf">Preis (niedrig → hoch)</option>
+    <option value="preis-ab">Preis (hoch → niedrig)</option>
+    <option value="veraenderung-auf">24h % (niedrig → hoch)</option>
+    <option value="veraenderung-ab">24h % (hoch → niedrig)</option>
+  </select>
+</div>
+
+<div class="tabelle-wrapper">
+  <table id="tabelle" style="display:none">
+    <tr>
+      <th>Coin</th>
+      <th>Preis (EUR)</th>
+      <th>24h %</th>
+      <th>7 Tage</th>
+    </tr>
+  </table>
+</div>
+
+<p class="chart-titel">24h-Veränderung in %</p>
+<div class="legende">
+  <div class="legende-eintrag"><span class="legende-farbe gruen"></span> Gestiegen</div>
+  <div class="legende-eintrag"><span class="legende-farbe rot"></span> Gefallen</div>
+</div>
+<div id="chart" class="chart"></div>
+
+<script>
+  // CoinGecko-IDs der 6 Coins
+  const coins = [
+    { id: "stellar", name: "Stellar (XLM)" },
+    { id: "xdce-crowd-sale", name: "XDC Network" },
+    { id: "velo", name: "VELO" },
+    { id: "canton-network", name: "Canton Network (CC)" },
+    { id: "zebec-network", name: "Zebec Network" },
+    { id: "stronghold-token", name: "SHX Stronghold" }
+  ];
+
+  const ids = coins.map(c => c.id).join(",");
+  // /coins/markets liefert Preis, 24h-Veränderung UND das Logo-Bild in einem Aufruf
+  const PREIS_URL = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=${ids}&price_change_percentage=24h`;
+  const PREIS_ABSTAND_MS = 60000;      // Preise: alle 60 Sekunden
+  const VERLAUF_ABSTAND_MS = 5 * 60000; // 7-Tage-Verlauf: alle 5 Minuten (schont die kostenlose API)
+
+  let letzteDaten = null;     // letzte erfolgreich geladene Preisliste
+  let letzterErfolg = null;   // Uhrzeit der letzten erfolgreichen Aktualisierung
+  const verlaufsDaten = {};   // coin-id -> Array von Preisen der letzten 7 Tage
+
+  // --- Preise laden ---
+  function kurseLaden() {
+    fetch(PREIS_URL)
+      .then(antwort => {
+        if (!antwort.ok) {
+          const grund = antwort.status === 429
+            ? "zu viele Anfragen, bitte kurz warten"
+            : "Serverfehler " + antwort.status;
+          throw new Error(grund);
+        }
+        return antwort.json();
+      })
+      .then(liste => {
+        letzteDaten = liste;
+        letzterErfolg = new Date().toLocaleTimeString("de-DE");
+        alleAnzeigen();
+
+        const status = document.getElementById("status");
+        status.textContent = "Stand: " + letzterErfolg + " (Auto-Refresh alle 60 Sek.)";
+        status.classList.remove("fehler");
+      })
+      .catch(fehler => {
+        const status = document.getElementById("status");
+        status.classList.add("fehler");
+        status.textContent = letzteDaten
+          ? "⚠ Aktualisierung fehlgeschlagen (" + fehler.message + ") – zeige letzten Stand von " + letzterErfolg
+          : "⚠ Fehler beim Laden der Daten: " + fehler.message;
+      });
+  }
+
+  // --- 7-Tage-Verlauf laden (für die Sparkline in der Tabelle) ---
+  // Nacheinander statt gleichzeitig, damit die kostenlose API nicht mit 6 parallelen
+  // Anfragen das Rate-Limit auslöst (führt sonst zu HTTP 429 "Too Many Requests").
+  function warte(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function verlaufLaden() {
+    for (const coin of coins) {
+      try {
+        const antwort = await fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=eur&days=7`);
+        if (antwort.ok) {
+          const daten = await antwort.json();
+          if (daten && daten.prices) {
+            verlaufsDaten[coin.id] = daten.prices.map(p => p[1]);
+            alleAnzeigen();
+          }
+        }
+      } catch (fehler) {
+        // einzelner Coin ohne Verlauf ist kein Problem, die anderen laufen weiter
+      }
+      await warte(1500); // kleine Pause zwischen den Anfragen
+    }
+  }
+
+  // Liefert die Coins in der aktuell gewählten Sortierung, jeweils mit den passenden Marktdaten
+  function sortierteCoins() {
+    if (!letzteDaten) return [];
+
+    let eintraege = coins
+      .map(coin => ({ coin, info: letzteDaten.find(c => c.id === coin.id) }))
+      .filter(e => e.info);
+
+    const modus = document.getElementById("sortierung").value;
+    if (modus === "preis-auf") {
+      eintraege.sort((a, b) => a.info.current_price - b.info.current_price);
+    } else if (modus === "preis-ab") {
+      eintraege.sort((a, b) => b.info.current_price - a.info.current_price);
+    } else if (modus === "veraenderung-auf") {
+      eintraege.sort((a, b) => a.info.price_change_percentage_24h - b.info.price_change_percentage_24h);
+    } else if (modus === "veraenderung-ab") {
+      eintraege.sort((a, b) => b.info.price_change_percentage_24h - a.info.price_change_percentage_24h);
+    }
+    // "standard" = Reihenfolge wie oben in der coins-Liste definiert, kein Sortieren nötig
+    return eintraege;
+  }
+
+  // Baut ein kleines SVG-Liniendiagramm aus einer Preis-Liste
+  function sparklineSvg(preise) {
+    if (!preise || preise.length < 2) return "…";
+
+    const breite = 70, hoehe = 24;
+    const min = Math.min(...preise);
+    const max = Math.max(...preise);
+    const spanne = (max - min) || 1;
+
+    const punkte = preise.map((preis, i) => {
+      const x = (i / (preise.length - 1)) * breite;
+      const y = hoehe - ((preis - min) / spanne) * hoehe;
+      return x.toFixed(1) + "," + y.toFixed(1);
+    }).join(" ");
+
+    const farbe = preise[preise.length - 1] >= preise[0] ? "#4caf50" : "#f44336";
+
+    return `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}">
+      <polyline points="${punkte}" fill="none" stroke="${farbe}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>`;
+  }
+
+  // Zeichnet sowohl Tabelle als auch Balkendiagramm neu (z.B. nach Sortierungswechsel)
+  function alleAnzeigen() {
+    const eintraege = sortierteCoins();
+    if (eintraege.length === 0) return;
+
+    tabelleZeichnen(eintraege);
+    balkendiagrammZeichnen(eintraege);
+
+    document.getElementById("tabelle").style.display = "table";
+  }
+
+  function tabelleZeichnen(eintraege) {
+    const tabelle = document.getElementById("tabelle");
+
+    // alte Zeilen entfernen (außer der Kopfzeile)
+    while (tabelle.rows.length > 1) {
+      tabelle.deleteRow(1);
+    }
+
+    eintraege.forEach(({ coin, info }) => {
+      const preis = info.current_price;
+      const veraenderung = info.price_change_percentage_24h;
+      const farbe = veraenderung >= 0 ? "gruen" : "rot";
+      const vorzeichen = veraenderung >= 0 ? "+" : "";
+
+      const zeile = document.createElement("tr");
+      zeile.innerHTML = `
+        <td class="coin-zelle"><img class="logo" src="${info.image}" alt="${coin.name}"> ${coin.name}</td>
+        <td>${preis.toFixed(6)} €</td>
+        <td class="${farbe}">${vorzeichen}${veraenderung.toFixed(2)} %</td>
+        <td>${sparklineSvg(verlaufsDaten[coin.id])}</td>
+      `;
+      tabelle.appendChild(zeile);
+    });
+  }
+
+  // Zeichnet ein Balkendiagramm (von einer Nulllinie in der Mitte aus) für die 24h-Veränderung
+  function balkendiagrammZeichnen(eintraege) {
+    const chart = document.getElementById("chart");
+    chart.innerHTML = "";
+
+    // größten Ausschlag (positiv oder negativ) ermitteln, um die Balken-Skala festzulegen
+    const maxAusschlag = Math.max(
+      ...eintraege.map(({ info }) => Math.abs(info.price_change_percentage_24h))
+    ) || 1;
+
+    eintraege.forEach(({ coin, info }) => {
+      const veraenderung = info.price_change_percentage_24h;
+      const farbe = veraenderung >= 0 ? "gruen" : "rot";
+      const vorzeichen = veraenderung >= 0 ? "+" : "";
+      const breiteProzent = (Math.abs(veraenderung) / maxAusschlag) * 50; // halbe Breite = 0% bis Maximum
+
+      const zeile = document.createElement("div");
+      zeile.className = "chart-zeile";
+
+      const balkenStyle = veraenderung >= 0
+        ? `left: 50%; width: ${breiteProzent}%;`
+        : `right: 50%; width: ${breiteProzent}%;`;
+
+      zeile.innerHTML = `
+        <div class="chart-label"><img class="chart-logo" src="${info.image}" alt="${coin.name}"> ${coin.name}</div>
+        <div class="chart-flaeche">
+          <div class="chart-nulllinie"></div>
+          <div class="chart-balken ${farbe}" style="${balkenStyle}"></div>
+        </div>
+        <div class="chart-wert">${vorzeichen}${veraenderung.toFixed(2)} %</div>
+      `;
+      chart.appendChild(zeile);
+    });
+  }
+
+  document.getElementById("sortierung").addEventListener("change", alleAnzeigen);
+
+  kurseLaden();
+  verlaufLaden();
+  setInterval(kurseLaden, PREIS_ABSTAND_MS);
+  setInterval(verlaufLaden, VERLAUF_ABSTAND_MS);
+</script>
+
+</body>
+</html>
