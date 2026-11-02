@@ -97,6 +97,7 @@
   .coin-karte {
     background: linear-gradient(145deg, #2b2b45, #22223a);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 3px solid var(--karte-farbe, transparent);
     border-radius: 14px;
     padding: 16px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
@@ -306,6 +307,10 @@
   let ersterAufbau = true;    // true = Karten sollen beim nächsten Zeichnen einblenden
   let ersteChartAnzeige = true; // true = Linien im Chart sollen beim nächsten Zeichnen einblenden
   const CHART_FARBEN = ["#8c7cf0", "#4fd1c5", "#f6ad55", "#f687b3", "#68d391", "#63b3ed"];
+  // Jedem Coin fest eine Farbe zuordnen (unabhängig von Sortierung), damit
+  // Karten-Akzent und Chart-Linie immer zusammenpassen.
+  const COIN_FARBEN = {};
+  coins.forEach((coin, index) => { COIN_FARBEN[coin.id] = CHART_FARBEN[index % CHART_FARBEN.length]; });
 
   // --- Zwischenspeicher im Browser (localStorage) ---
   // Damit die Seite beim Öffnen sofort die letzten bekannten Werte zeigt,
@@ -479,6 +484,7 @@
 
       const karte = document.createElement("div");
       karte.className = "coin-karte";
+      karte.style.setProperty("--karte-farbe", COIN_FARBEN[coin.id]);
       if (ersterAufbau) {
         karte.style.animationDelay = (index * 0.08) + "s";
       } else {
@@ -518,7 +524,7 @@
         if (!preise || preise.length < 2) return null;
         const ersterPreis = preise[0];
         const prozente = preise.map(p => ((p - ersterPreis) / ersterPreis) * 100);
-        return { coin, farbe: CHART_FARBEN[index % CHART_FARBEN.length], prozente };
+        return { coin, farbe: COIN_FARBEN[coin.id], prozente };
       })
       .filter(Boolean);
 
