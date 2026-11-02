@@ -147,8 +147,14 @@
   }
   .karte-sparkline {
     margin-top: 12px;
-    display: flex;
-    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .karte-sparkline iframe {
+    display: block;
+    width: 100%;
+    height: 70px;
+    border: 0;
   }
 
   .gruen { color: #4caf50; }
@@ -312,6 +318,38 @@
   const COIN_FARBEN = {};
   coins.forEach((coin, index) => { COIN_FARBEN[coin.id] = CHART_FARBEN[index % CHART_FARBEN.length]; });
 
+  // TradingView-Symbol je Coin für das Mini-Chart auf der Karte (Ersatz für die alte Sparkline).
+  // Einige dieser Symbole sind bei seltener gehandelten Coins ein Schätzwert, der noch nicht im
+  // Browser geprüft wurde – falls ein Chart "Invalid symbol" zeigt, hier den Eintrag korrigieren.
+  const TRADINGVIEW_SYMBOLE = {
+    stellar: "COINBASE:XLMUSD",
+    "xdce-crowd-sale": "CRYPTO:XDCUSD",
+    velo: "CRYPTO:VELOUSD",
+    "canton-network": "CRYPTO:CCUSDT",
+    "zebec-network": "CRYPTO:ZBCNUSD",
+    "stronghold-token": "CRYPTO:SHXUSD"
+  };
+
+  // Baut ein eingebettetes TradingView-Mini-Chart (7 Tage) für einen Coin
+  function tradingViewWidgetHtml(coinId, anzeigeName) {
+    const symbol = TRADINGVIEW_SYMBOLE[coinId];
+    if (!symbol) return "";
+
+    const konfiguration = {
+      symbols: [[anzeigeName, symbol + "|7D"]],
+      chartOnly: true,
+      colorTheme: "dark",
+      autosize: true,
+      locale: "de",
+      chartType: "area",
+      noTimeScale: true
+    };
+    const url = "https://s.tradingview.com/embed-widget/mini-symbol-overview/?locale=de#"
+      + encodeURIComponent(JSON.stringify(konfiguration));
+
+    return `<iframe src="${url}" loading="lazy" title="${anzeigeName} Kursverlauf (TradingView)"></iframe>`;
+  }
+
   // --- Zwischenspeicher im Browser (localStorage) ---
   // Damit die Seite beim Öffnen sofort die letzten bekannten Werte zeigt,
   // statt erst auf die CoinGecko-API warten zu müssen.
@@ -385,7 +423,7 @@
       });
   }
 
-  // --- 7-Tage-Verlauf laden (für die Sparkline in der Karte) ---
+  // --- 7-Tage-Verlauf laden (für das gemeinsame Liniendiagramm unten) ---
   // Nacheinander statt gleichzeitig, damit die kostenlose API nicht mit 6 parallelen
   // Anfragen das Rate-Limit auslöst (führt sonst zu HTTP 429 "Too Many Requests").
   function warte(ms) {
@@ -433,28 +471,6 @@
     return eintraege;
   }
 
-  // Baut ein kleines SVG-Liniendiagramm aus einer Preis-Liste
-  function sparklineSvg(preise) {
-    if (!preise || preise.length < 2) return "…";
-
-    const breite = 90, hoehe = 26;
-    const min = Math.min(...preise);
-    const max = Math.max(...preise);
-    const spanne = (max - min) || 1;
-
-    const punkte = preise.map((preis, i) => {
-      const x = (i / (preise.length - 1)) * breite;
-      const y = hoehe - ((preis - min) / spanne) * hoehe;
-      return x.toFixed(1) + "," + y.toFixed(1);
-    }).join(" ");
-
-    const farbe = preise[preise.length - 1] >= preise[0] ? "#4caf50" : "#f44336";
-
-    return `<svg width="${breite}" height="${hoehe}" viewBox="0 0 ${breite} ${hoehe}">
-      <polyline points="${punkte}" fill="none" stroke="${farbe}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>`;
-  }
-
   // Zeichnet sowohl Karten als auch Balkendiagramm neu (z.B. nach Sortierungswechsel)
   function alleAnzeigen() {
     const eintraege = sortierteCoins();
@@ -468,7 +484,6 @@
 
   function kartenZeichnen(eintraege) {
     const grid = document.getElementById("karten");
-    grid.innerHTML = "";
 
     eintraege.forEach(({ coin, info }, index) => {
       const preis = info.current_price;
@@ -482,35 +497,52 @@
       const geaendert = alterPreis !== undefined && alterPreis !== preis;
       letztePreise[coin.id] = preis;
 
-      const karte = document.createElement("div");
-      karte.className = "coin-karte";
-      karte.style.setProperty("--karte-farbe", COIN_FARBEN[coin.id]);
-      if (ersterAufbau) {
-        karte.style.animationDelay = (index * 0.08) + "s";
+      let karte = document.getElementById("karte-" + coin.id);
+
+      if (!karte) {
+        // Karte gibt es noch nicht: komplett neu aufbauen, inklusive TradingView-Chart.
+        // Das Chart bleibt danach bei jedem Refresh unberührt, damit es nicht ständig neu lädt.
+        karte = document.createElement("div");
+        karte.id = "karte-" + coin.id;
+        karte.className = "coin-karte";
+        karte.style.setProperty("--karte-farbe", COIN_FARBEN[coin.id]);
+        if (ersterAufbau) {
+          karte.style.animationDelay = (index * 0.08) + "s";
+        } else {
+          // Einblend-Animation nur beim allerersten Aufbau, nicht bei jedem Refresh
+          karte.style.animation = "none";
+          karte.style.opacity = "1";
+        }
+
+        karte.innerHTML = `
+          <div class="karte-kopf">
+            <img class="logo" src="${info.image}" alt="${coin.name}">
+            <span class="karte-name">${coin.name}</span>
+          </div>
+          <div class="karte-preis" data-feld="preis">${preis.toFixed(6)} €</div>
+          <div class="karte-aenderung ${farbe}" data-feld="aenderung">${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %</div>
+          <div class="karte-sparkline">${tradingViewWidgetHtml(coin.id, coin.name)}</div>
+        `;
       } else {
-        // Einblend-Animation nur beim allerersten Aufbau, nicht bei jedem Refresh
-        karte.style.animation = "none";
-        karte.style.opacity = "1";
+        // Karte existiert schon: nur Preis und Änderung aktualisieren, Chart in Ruhe lassen
+        const preisEl = karte.querySelector('[data-feld="preis"]');
+        preisEl.textContent = preis.toFixed(6) + " €";
+        if (geaendert) {
+          preisEl.classList.add("blitz");
+          setTimeout(() => preisEl.classList.remove("blitz"), 900);
+        }
+
+        const aenderungEl = karte.querySelector('[data-feld="aenderung"]');
+        aenderungEl.className = "karte-aenderung " + farbe;
+        aenderungEl.dataset.feld = "aenderung";
+        aenderungEl.textContent = `${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %`;
       }
 
-      karte.innerHTML = `
-        <div class="karte-kopf">
-          <img class="logo" src="${info.image}" alt="${coin.name}">
-          <span class="karte-name">${coin.name}</span>
-        </div>
-        <div class="karte-preis${geaendert ? " blitz" : ""}">${preis.toFixed(6)} €</div>
-        <div class="karte-aenderung ${farbe}">${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %</div>
-        <div class="karte-sparkline">${sparklineSvg(verlaufsDaten[coin.id])}</div>
-      `;
+      // An die richtige Position gemäß aktueller Sortierung verschieben (oder neu einfügen)
       grid.appendChild(karte);
     });
 
     ersterAufbau = false;
-
-    // Blitz-Markierung nach kurzer Zeit wieder entfernen
-    grid.querySelectorAll(".blitz").forEach(el => {
-      setTimeout(() => el.classList.remove("blitz"), 900);
-    });
   }
 
   // Zeichnet ein gemeinsames Liniendiagramm: 7-Tage-Verlauf aller Coins, normiert in % seit Tag 1
