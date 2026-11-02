@@ -215,7 +215,7 @@
     border-radius: 3px;
   }
   .video-abschnitt {
-    max-width: 320px;
+    max-width: 440px;
     margin: 40px auto 20px;
     text-align: center;
     padding: 0 10px;
@@ -225,8 +225,14 @@
     color: var(--akzent);
     margin-bottom: 12px;
   }
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
   .video-abschnitt video {
     width: 100%;
+    display: block;
     border-radius: 14px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   }
@@ -239,6 +245,11 @@
   }
   .video-abschnitt a:hover {
     text-decoration: underline;
+  }
+  .video-abschnitt p {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 14px;
   }
   /* Mobile-Anpassungen für kleine Bildschirme */
   @media (max-width: 480px) {
@@ -281,10 +292,25 @@
 
 <div class="video-abschnitt">
   <h2>📱 Tangem erklärt</h2>
-  <video controls preload="metadata">
-    <source src="tangem_erklaert_hell_EN_9x16.mp4" type="video/mp4">
-    Dein Browser unterstützt das Video-Element nicht.
-  </video>
+  <p>Warum Cold Wallet statt Börse: Auf einer Börse liegen deine Kryptos auf fremden Servern und können bei einem Hack gestohlen werden. Mit einem Cold Wallet wie Tangem verwahrst du die Schlüssel selbst.</p>
+  <div class="video-grid">
+    <video controls preload="metadata">
+      <source src="tangem_erklaert_hell_EN_9x16.mp4" type="video/mp4">
+      Dein Browser unterstützt das Video-Element nicht.
+    </video>
+    <video controls preload="metadata">
+      <source src="tangem_ledger_seedless_9x16_EN.mp4" type="video/mp4">
+      Dein Browser unterstützt das Video-Element nicht.
+    </video>
+    <video controls preload="metadata">
+      <source src="tangem_werbung_coldwallet_1.mp4" type="video/mp4">
+      Dein Browser unterstützt das Video-Element nicht.
+    </video>
+    <video controls preload="metadata">
+      <source src="tangem_werbung_coldwallet_2.mp4" type="video/mp4">
+      Dein Browser unterstützt das Video-Element nicht.
+    </video>
+  </div>
   <br>
   <a href="https://tangem.com/invite/ALEN" target="_blank" rel="noopener">tangem.com/invite/ALEN</a>
 </div>
