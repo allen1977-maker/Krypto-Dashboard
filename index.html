@@ -162,6 +162,89 @@
   .karte-aenderung.gruen { background: rgba(76, 175, 80, 0.14); }
   .karte-aenderung.rot { background: rgba(244, 67, 54, 0.14); }
 
+  /* --- Mein Portfolio --- */
+  .portfolio-abschnitt {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 16px 18px;
+    background: linear-gradient(145deg, #2b2b45, #22223a);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+  }
+  .portfolio-abschnitt h2 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    color: var(--akzent);
+    text-align: center;
+  }
+  .portfolio-hinweis {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    margin: 0 0 14px;
+  }
+  .portfolio-zeilen {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .portfolio-zeile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .portfolio-name {
+    flex: 1 1 140px;
+    font-size: 14px;
+  }
+  .portfolio-eingabe {
+    width: 90px;
+    background: #2a2a3d;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .portfolio-eingabe:focus {
+    outline: none;
+    border-color: var(--akzent);
+    box-shadow: 0 0 0 2px var(--akzent-glanz);
+  }
+  .portfolio-wert {
+    flex: 0 0 90px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .portfolio-summe {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+  }
+  .portfolio-leer {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+  }
+  .portfolio-gesamt-wert {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .portfolio-gesamt-aenderung {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .portfolio-gesamt-aenderung.gruen { background: rgba(76, 175, 80, 0.14); }
+  .portfolio-gesamt-aenderung.rot { background: rgba(244, 67, 54, 0.14); }
+
   .chart-titel {
     text-align: center;
     margin-top: 10px;
@@ -263,6 +346,8 @@
     .logo { width: 24px; height: 24px; }
     .linien-chart { height: 180px; }
     .legende { gap: 10px 14px; font-size: 11px; }
+    .portfolio-zeile { flex-wrap: wrap; }
+    .portfolio-name { flex: 1 1 100%; }
   }
 </style>
 </head>
@@ -284,6 +369,13 @@
 </div>
 
 <div id="karten" class="karten-grid" style="display:none"></div>
+
+<div id="portfolio-abschnitt" class="portfolio-abschnitt" style="display:none">
+  <h2>💰 Mein Portfolio</h2>
+  <p class="portfolio-hinweis">Deine Mengen werden nur in diesem Browser gespeichert (localStorage) – nie im Code oder auf GitHub.</p>
+  <div id="portfolio-zeilen" class="portfolio-zeilen"></div>
+  <div id="portfolio-summe" class="portfolio-summe"></div>
+</div>
 
 <p class="chart-titel">7-Tage-Verlauf (%)</p>
 <div id="chart" class="chart"></div>
@@ -381,6 +473,12 @@
   // statt erst auf die CoinGecko-API warten zu müssen.
   const CACHE_SCHLUESSEL_PREISE = "kd_preise";
   const CACHE_SCHLUESSEL_VERLAUF = "kd_verlauf";
+  // Eigener Schlüssel nur für die Portfolio-Mengen: bleibt ausschließlich im
+  // Browser des Nutzers, wird nirgendwo mitgeschickt und landet nie im Code/Repo.
+  const CACHE_SCHLUESSEL_PORTFOLIO = "kd_portfolio_mengen";
+
+  // Portfolio-Mengen: coin-id -> Anzahl Stück, nur aus localStorage geladen
+  let portfolioMengen = cacheLaden(CACHE_SCHLUESSEL_PORTFOLIO) || {};
 
   function cacheSpeichern(schluessel, wert) {
     try {
@@ -497,15 +595,98 @@
     return eintraege;
   }
 
-  // Zeichnet sowohl Karten als auch Balkendiagramm neu (z.B. nach Sortierungswechsel)
+  // Zeichnet Karten, Portfolio und Liniendiagramm neu (z.B. nach Sortierungswechsel)
   function alleAnzeigen() {
     const eintraege = sortierteCoins();
     if (eintraege.length === 0) return;
 
     kartenZeichnen(eintraege);
+    portfolioZeichnen(eintraege);
     linienChartZeichnen(eintraege);
 
     document.getElementById("karten").style.display = "grid";
+    document.getElementById("portfolio-abschnitt").style.display = "block";
+  }
+
+  // Speichert eine Menge nur lokal im Browser (localStorage) - nie im Code, nie im Repo
+  function portfolioMengeSpeichern(coinId, menge) {
+    portfolioMengen[coinId] = menge;
+    cacheSpeichern(CACHE_SCHLUESSEL_PORTFOLIO, portfolioMengen);
+  }
+
+  // Baut die Eingabezeilen einmalig auf und aktualisiert danach nur noch die
+  // Wert-Anzeige, damit das Eingabefeld beim Tippen nicht den Fokus verliert.
+  function portfolioZeichnen(eintraege) {
+    const container = document.getElementById("portfolio-zeilen");
+
+    eintraege.forEach(({ coin, info }) => {
+      const preis = info.current_price;
+      const menge = portfolioMengen[coin.id] || 0;
+      const wert = menge * preis;
+
+      let zeile = document.getElementById("portfolio-zeile-" + coin.id);
+
+      if (!zeile) {
+        zeile = document.createElement("div");
+        zeile.id = "portfolio-zeile-" + coin.id;
+        zeile.className = "portfolio-zeile";
+        zeile.innerHTML = `
+          <span class="portfolio-name">${coin.name}</span>
+          <input type="number" min="0" step="any" inputmode="decimal" class="portfolio-eingabe"
+                 id="menge-${coin.id}" placeholder="Menge" value="${menge ? menge : ""}">
+          <span class="portfolio-wert" data-feld="wert">${wert.toFixed(2)} €</span>
+        `;
+        container.appendChild(zeile);
+
+        zeile.querySelector("input").addEventListener("input", (ereignis) => {
+          const neueMenge = parseFloat(ereignis.target.value);
+          portfolioMengeSpeichern(coin.id, isNaN(neueMenge) ? 0 : neueMenge);
+          alleAnzeigen();
+        });
+      } else {
+        zeile.querySelector('[data-feld="wert"]').textContent = wert.toFixed(2) + " €";
+      }
+    });
+
+    portfolioSummeZeichnen(eintraege);
+  }
+
+  // Gesamtwert und heutige Veränderung in Euro über alle eingetragenen Mengen
+  function portfolioSummeZeichnen(eintraege) {
+    const summeEl = document.getElementById("portfolio-summe");
+    let gesamtWert = 0;
+    let gesamtAenderungEur = 0;
+    let hatMengen = false;
+
+    eintraege.forEach(({ coin, info }) => {
+      const menge = portfolioMengen[coin.id] || 0;
+      if (menge > 0) hatMengen = true;
+
+      const preis = info.current_price;
+      const veraenderung = info.price_change_percentage_24h;
+      gesamtWert += menge * preis;
+
+      // Preis vor 24h aus der %-Veränderung zurückrechnen, um die Euro-Veränderung zu bestimmen
+      const faktor = 1 + veraenderung / 100;
+      if (faktor !== 0) {
+        const preisVor24h = preis / faktor;
+        gesamtAenderungEur += menge * (preis - preisVor24h);
+      }
+    });
+
+    if (!hatMengen) {
+      summeEl.innerHTML = '<p class="portfolio-leer">Noch keine Mengen eingetragen – trag oben ein, wie viel du von jedem Coin hast.</p>';
+      return;
+    }
+
+    const farbe = gesamtAenderungEur >= 0 ? "gruen" : "rot";
+    const pfeil = gesamtAenderungEur >= 0 ? "▲" : "▼";
+    const vorzeichen = gesamtAenderungEur >= 0 ? "+" : "";
+
+    summeEl.innerHTML = `
+      <div class="portfolio-gesamt-wert">Gesamtwert: <strong>${gesamtWert.toFixed(2)} €</strong></div>
+      <div class="portfolio-gesamt-aenderung ${farbe}">${pfeil} ${vorzeichen}${gesamtAenderungEur.toFixed(2)} € heute</div>
+    `;
   }
 
   function kartenZeichnen(eintraege) {
