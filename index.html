@@ -157,6 +157,64 @@
     border: 0;
   }
 
+  .coin-karte.alarm-aktiv {
+    border: 2px solid #ffd54f;
+    border-top: 3px solid #ffd54f;
+    box-shadow: 0 0 18px rgba(255, 213, 79, 0.45);
+  }
+  .coin-karte.alarm-warnung {
+    border: 2px solid #f44336;
+    border-top: 3px solid #f44336;
+    box-shadow: 0 0 18px rgba(244, 67, 54, 0.45);
+  }
+  .alarm-zeile {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #ccc;
+  }
+  .alarm-eingabe {
+    width: 70px;
+    background: #2a2a3d;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .alarm-eingabe:focus {
+    outline: none;
+    border-color: var(--akzent);
+    box-shadow: 0 0 0 2px var(--akzent-glanz);
+  }
+  .alarm-abzeichen {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1b1b2f;
+    background: #ffd54f;
+  }
+  .alarm-abzeichen-warnung {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: #f44336;
+  }
+
   .gruen { color: #4caf50; }
   .rot { color: #f44336; }
   .karte-aenderung.gruen { background: rgba(76, 175, 80, 0.14); }
@@ -476,9 +534,20 @@
   // Eigener Schlüssel nur für die Portfolio-Mengen: bleibt ausschließlich im
   // Browser des Nutzers, wird nirgendwo mitgeschickt und landet nie im Code/Repo.
   const CACHE_SCHLUESSEL_PORTFOLIO = "kd_portfolio_mengen";
+  // Eigener Schlüssel nur für die Preisalarme: bleibt ausschließlich im
+  // Browser des Nutzers, wird nirgendwo mitgeschickt und landet nie im Code/Repo.
+  const CACHE_SCHLUESSEL_ALARM = "kd_preisalarme";
+  // Eigener Schlüssel nur für die Stop-Loss-Warnung ("Alarm unter"): bleibt
+  // ausschließlich im Browser des Nutzers, wird nirgendwo mitgeschickt und
+  // landet nie im Code/Repo.
+  const CACHE_SCHLUESSEL_ALARM_UNTER = "kd_preisalarme_unter";
 
   // Portfolio-Mengen: coin-id -> Anzahl Stück, nur aus localStorage geladen
   let portfolioMengen = cacheLaden(CACHE_SCHLUESSEL_PORTFOLIO) || {};
+  // Preisalarme: coin-id -> Schwellenwert in €, nur aus localStorage geladen
+  let preisAlarme = cacheLaden(CACHE_SCHLUESSEL_ALARM) || {};
+  // Stop-Loss-Warnungen ("Alarm unter"): coin-id -> Schwellenwert in €, nur aus localStorage geladen
+  let preisAlarmeUnter = cacheLaden(CACHE_SCHLUESSEL_ALARM_UNTER) || {};
 
   function cacheSpeichern(schluessel, wert) {
     try {
@@ -562,8 +631,6 @@
           const daten = await antwort.json();
           if (daten && daten.prices) {
             verlaufsDaten[coin.id] = daten.prices.map(p => p[1]);
-            alleAnzeigen();
-            cacheSpeichern(CACHE_SCHLUESSEL_VERLAUF, verlaufsDaten);
           }
         }
       } catch (fehler) {
@@ -571,6 +638,10 @@
       }
       await warte(1500); // kleine Pause zwischen den Anfragen
     }
+    // Erst wenn alle Coins durch sind, einmal neu zeichnen und cachen –
+    // sonst springt das Liniendiagramm bei jedem einzelnen Coin neu.
+    alleAnzeigen();
+    cacheSpeichern(CACHE_SCHLUESSEL_VERLAUF, verlaufsDaten);
   }
 
   // Liefert die Coins in der aktuell gewählten Sortierung, jeweils mit den passenden Marktdaten
@@ -721,6 +792,8 @@
           karte.style.opacity = "1";
         }
 
+        const alarmSchwelle = preisAlarme[coin.id];
+        const alarmSchwelleUnter = preisAlarmeUnter[coin.id];
         karte.innerHTML = `
           <div class="karte-kopf">
             <img class="logo" src="${info.image}" alt="${coin.name}">
@@ -729,7 +802,31 @@
           <div class="karte-preis" data-feld="preis">${preis.toFixed(6)} €</div>
           <div class="karte-aenderung ${farbe}" data-feld="aenderung">${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %</div>
           <div class="karte-sparkline">${tradingViewWidgetHtml(coin.id, coin.name)}</div>
+          <div class="alarm-zeile">
+            <label for="alarm-${coin.id}">Alarm ab</label>
+            <input type="number" min="0" step="any" inputmode="decimal" class="alarm-eingabe"
+                   id="alarm-${coin.id}" placeholder="€" value="${alarmSchwelle ? alarmSchwelle : ""}">
+          </div>
+          <div class="alarm-zeile">
+            <label for="alarm-unter-${coin.id}">Alarm unter</label>
+            <input type="number" min="0" step="any" inputmode="decimal" class="alarm-eingabe alarm-eingabe-unter"
+                   id="alarm-unter-${coin.id}" placeholder="€" value="${alarmSchwelleUnter ? alarmSchwelleUnter : ""}">
+          </div>
+          <span class="alarm-abzeichen" data-feld="alarm-abzeichen">✅ Ziel erreicht</span>
+          <span class="alarm-abzeichen-warnung" data-feld="alarm-abzeichen-warnung">⚠️ Unter Zielwert</span>
         `;
+
+        karte.querySelector(".alarm-eingabe:not(.alarm-eingabe-unter)").addEventListener("input", (ereignis) => {
+          const neueSchwelle = parseFloat(ereignis.target.value);
+          preisAlarmSpeichern(coin.id, isNaN(neueSchwelle) ? 0 : neueSchwelle);
+          alarmPruefen(karte, coin.id, letztePreise[coin.id]);
+        });
+
+        karte.querySelector(".alarm-eingabe-unter").addEventListener("input", (ereignis) => {
+          const neueSchwelle = parseFloat(ereignis.target.value);
+          preisAlarmUnterSpeichern(coin.id, isNaN(neueSchwelle) ? 0 : neueSchwelle);
+          alarmPruefen(karte, coin.id, letztePreise[coin.id]);
+        });
       } else {
         // Karte existiert schon: nur Preis und Änderung aktualisieren, Chart in Ruhe lassen
         const preisEl = karte.querySelector('[data-feld="preis"]');
@@ -745,11 +842,48 @@
         aenderungEl.textContent = `${pfeil} ${vorzeichen}${veraenderung.toFixed(2)} %`;
       }
 
+      // Alarm-Status bei jedem Refresh neu prüfen, ohne die Karte neu aufzubauen
+      alarmPruefen(karte, coin.id, preis);
+
       // An die richtige Position gemäß aktueller Sortierung verschieben (oder neu einfügen)
       grid.appendChild(karte);
     });
 
     ersterAufbau = false;
+  }
+
+  // Speichert einen Alarm-Schwellenwert nur lokal im Browser (localStorage) - nie im Code, nie im Repo
+  function preisAlarmSpeichern(coinId, schwelle) {
+    preisAlarme[coinId] = schwelle;
+    cacheSpeichern(CACHE_SCHLUESSEL_ALARM, preisAlarme);
+  }
+
+  // Speichert die Stop-Loss-Warnschwelle ("Alarm unter") nur lokal im Browser (localStorage) - nie im Code, nie im Repo
+  function preisAlarmUnterSpeichern(coinId, schwelle) {
+    preisAlarmeUnter[coinId] = schwelle;
+    cacheSpeichern(CACHE_SCHLUESSEL_ALARM_UNTER, preisAlarmeUnter);
+  }
+
+  // Prüft, ob der aktuelle Preis die eingegebenen Schwellen erreicht/unterschritten hat,
+  // und schaltet nur die Alarm-Optik der schon vorhandenen Karte um (kein Neuaufbau).
+  function alarmPruefen(karte, coinId, preis) {
+    const schwelle = preisAlarme[coinId];
+    const aktiv = !!schwelle && schwelle > 0 && typeof preis === "number" && preis >= schwelle;
+    karte.classList.toggle("alarm-aktiv", aktiv);
+
+    const abzeichen = karte.querySelector('[data-feld="alarm-abzeichen"]');
+    if (abzeichen) {
+      abzeichen.style.display = aktiv ? "inline-flex" : "none";
+    }
+
+    const schwelleUnter = preisAlarmeUnter[coinId];
+    const warnungAktiv = !!schwelleUnter && schwelleUnter > 0 && typeof preis === "number" && preis < schwelleUnter;
+    karte.classList.toggle("alarm-warnung", warnungAktiv);
+
+    const abzeichenWarnung = karte.querySelector('[data-feld="alarm-abzeichen-warnung"]');
+    if (abzeichenWarnung) {
+      abzeichenWarnung.style.display = warnungAktiv ? "inline-flex" : "none";
+    }
   }
 
   // Zeichnet ein gemeinsames Liniendiagramm: 7-Tage-Verlauf aller Coins, normiert in % seit Tag 1
