@@ -24,6 +24,38 @@
     color: #eee;
     padding: 20px;
   }
+
+  /* --- Weltkarte mit Transfer-Impulsen als fester Hintergrund --- */
+  .welt-hintergrund {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+  .welt-hintergrund .kontinent-punkte {
+    fill: rgba(140, 124, 240, 0.35);
+  }
+  .welt-hintergrund .hub {
+    fill: var(--akzent);
+    filter: drop-shadow(0 0 4px rgba(140, 124, 240, 0.9));
+    animation: hubPulsieren 2.4s ease-in-out infinite;
+  }
+  @keyframes hubPulsieren {
+    0%, 100% { opacity: 0.6; r: 3; }
+    50%      { opacity: 1;   r: 4; }
+  }
+  .welt-hintergrund .verbindung {
+    fill: none;
+    stroke: rgba(140, 124, 240, 0.25);
+    stroke-width: 1;
+  }
+  .welt-hintergrund .impuls {
+    fill: #4fd1c5;
+    filter: drop-shadow(0 0 3px rgba(79, 209, 197, 1));
+  }
   h1 {
     text-align: center;
     font-size: 26px;
@@ -303,58 +335,6 @@
   .portfolio-gesamt-aenderung.gruen { background: rgba(76, 175, 80, 0.14); }
   .portfolio-gesamt-aenderung.rot { background: rgba(244, 67, 54, 0.14); }
 
-  .chart-titel {
-    text-align: center;
-    margin-top: 10px;
-    color: #ccc;
-    font-size: 16px;
-  }
-  .chart {
-    max-width: 600px;
-    margin: 15px auto 10px;
-  }
-  .linien-chart {
-    width: 100%;
-    height: 220px;
-    display: block;
-  }
-  .linie {
-    opacity: 0;
-    animation: linieEinblenden 0.8s ease forwards;
-  }
-  @keyframes linieEinblenden {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  .chart-achsen {
-    display: flex;
-    justify-content: space-between;
-    max-width: 600px;
-    margin: 4px auto 30px;
-    padding: 0 4px;
-    font-size: 12px;
-    color: #888;
-  }
-  .legende {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px 20px;
-    margin-top: 10px;
-    padding: 0 10px;
-    font-size: 13px;
-    color: #ccc;
-  }
-  .legende-eintrag {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .legende-farbe {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-  }
   .video-abschnitt {
     max-width: 440px;
     margin: 40px auto 20px;
@@ -402,14 +382,81 @@
     .coin-karte { padding: 12px; }
     .karte-preis { font-size: 19px; }
     .logo { width: 24px; height: 24px; }
-    .linien-chart { height: 180px; }
-    .legende { gap: 10px 14px; font-size: 11px; }
     .portfolio-zeile { flex-wrap: wrap; }
     .portfolio-name { flex: 1 1 100%; }
   }
 </style>
 </head>
 <body>
+
+<svg class="welt-hintergrund" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g class="kontinent-punkte">
+    <!-- Nordamerika -->
+    <circle cx="70" cy="60" r="1.6"/><circle cx="85" cy="55" r="1.6"/><circle cx="100" cy="50" r="1.6"/><circle cx="115" cy="55" r="1.6"/>
+    <circle cx="70" cy="75" r="1.6"/><circle cx="85" cy="72" r="1.6"/><circle cx="100" cy="70" r="1.6"/><circle cx="115" cy="72" r="1.6"/><circle cx="130" cy="75" r="1.6"/>
+    <circle cx="70" cy="90" r="1.6"/><circle cx="90" cy="88" r="1.6"/><circle cx="110" cy="90" r="1.6"/><circle cx="125" cy="95" r="1.6"/><circle cx="140" cy="100" r="1.6"/>
+    <circle cx="60" cy="100" r="1.6"/><circle cx="75" cy="105" r="1.6"/><circle cx="95" cy="110" r="1.6"/><circle cx="115" cy="115" r="1.6"/><circle cx="130" cy="120" r="1.6"/>
+    <!-- Südamerika -->
+    <circle cx="160" cy="160" r="1.6"/><circle cx="170" cy="155" r="1.6"/><circle cx="180" cy="160" r="1.6"/>
+    <circle cx="165" cy="175" r="1.6"/><circle cx="175" cy="180" r="1.6"/><circle cx="185" cy="185" r="1.6"/>
+    <circle cx="170" cy="195" r="1.6"/><circle cx="180" cy="200" r="1.6"/><circle cx="190" cy="205" r="1.6"/>
+    <circle cx="175" cy="215" r="1.6"/><circle cx="185" cy="220" r="1.6"/><circle cx="195" cy="225" r="1.6"/>
+    <circle cx="180" cy="235" r="1.6"/><circle cx="190" cy="240" r="1.6"/>
+    <!-- Europa -->
+    <circle cx="330" cy="55" r="1.6"/><circle cx="345" cy="50" r="1.6"/><circle cx="360" cy="55" r="1.6"/>
+    <circle cx="335" cy="65" r="1.6"/><circle cx="350" cy="62" r="1.6"/><circle cx="365" cy="65" r="1.6"/>
+    <circle cx="340" cy="75" r="1.6"/><circle cx="355" cy="72" r="1.6"/>
+    <!-- Afrika -->
+    <circle cx="330" cy="100" r="1.6"/><circle cx="345" cy="95" r="1.6"/><circle cx="360" cy="100" r="1.6"/>
+    <circle cx="335" cy="115" r="1.6"/><circle cx="350" cy="112" r="1.6"/><circle cx="365" cy="118" r="1.6"/>
+    <circle cx="340" cy="130" r="1.6"/><circle cx="355" cy="128" r="1.6"/>
+    <circle cx="330" cy="145" r="1.6"/><circle cx="345" cy="142" r="1.6"/><circle cx="360" cy="148" r="1.6"/>
+    <circle cx="335" cy="160" r="1.6"/><circle cx="350" cy="158" r="1.6"/><circle cx="365" cy="165" r="1.6"/>
+    <circle cx="340" cy="175" r="1.6"/><circle cx="355" cy="172" r="1.6"/>
+    <circle cx="345" cy="190" r="1.6"/><circle cx="355" cy="195" r="1.6"/>
+    <!-- Asien -->
+    <circle cx="430" cy="50" r="1.6"/><circle cx="450" cy="45" r="1.6"/><circle cx="470" cy="50" r="1.6"/><circle cx="490" cy="48" r="1.6"/><circle cx="510" cy="52" r="1.6"/><circle cx="530" cy="55" r="1.6"/><circle cx="550" cy="58" r="1.6"/>
+    <circle cx="435" cy="65" r="1.6"/><circle cx="455" cy="62" r="1.6"/><circle cx="475" cy="65" r="1.6"/><circle cx="495" cy="68" r="1.6"/><circle cx="515" cy="70" r="1.6"/><circle cx="535" cy="72" r="1.6"/><circle cx="555" cy="75" r="1.6"/>
+    <circle cx="440" cy="80" r="1.6"/><circle cx="460" cy="78" r="1.6"/><circle cx="480" cy="82" r="1.6"/><circle cx="500" cy="85" r="1.6"/><circle cx="520" cy="88" r="1.6"/><circle cx="540" cy="90" r="1.6"/>
+    <circle cx="450" cy="95" r="1.6"/><circle cx="470" cy="98" r="1.6"/><circle cx="490" cy="100" r="1.6"/><circle cx="510" cy="102" r="1.6"/><circle cx="530" cy="105" r="1.6"/>
+    <circle cx="460" cy="115" r="1.6"/><circle cx="480" cy="118" r="1.6"/><circle cx="500" cy="120" r="1.6"/><circle cx="520" cy="122" r="1.6"/>
+    <!-- Australien -->
+    <circle cx="590" cy="220" r="1.6"/><circle cx="605" cy="215" r="1.6"/><circle cx="620" cy="220" r="1.6"/>
+    <circle cx="595" cy="230" r="1.6"/><circle cx="610" cy="232" r="1.6"/><circle cx="625" cy="235" r="1.6"/>
+    <circle cx="600" cy="245" r="1.6"/><circle cx="615" cy="248" r="1.6"/>
+  </g>
+
+  <!-- Verbindungen zwischen Hubs (New York, London, Singapur, Tokio, São Paulo) -->
+  <path id="route1" class="verbindung" d="M90,85 Q210,20 335,60"/>
+  <path id="route2" class="verbindung" d="M335,60 Q430,10 520,110"/>
+  <path id="route3" class="verbindung" d="M520,110 Q545,50 555,70"/>
+  <path id="route4" class="verbindung" d="M555,70 Q320,5 90,85"/>
+  <path id="route5" class="verbindung" d="M182,210 Q130,150 90,85"/>
+
+  <!-- Wandernde Impuls-Punkte (die "Transfers") -->
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="3.2s" begin="0s" repeatCount="indefinite"><mpath href="#route1"/></animateMotion>
+  </circle>
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="3.6s" begin="0.6s" repeatCount="indefinite"><mpath href="#route2"/></animateMotion>
+  </circle>
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="2.4s" begin="1.1s" repeatCount="indefinite"><mpath href="#route3"/></animateMotion>
+  </circle>
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="4s" begin="1.6s" repeatCount="indefinite"><mpath href="#route4"/></animateMotion>
+  </circle>
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="3s" begin="2.1s" repeatCount="indefinite"><mpath href="#route5"/></animateMotion>
+  </circle>
+
+  <!-- Hubs (Städte) -->
+  <circle class="hub" cx="90" cy="85" r="3"/>
+  <circle class="hub" cx="335" cy="60" r="3"/>
+  <circle class="hub" cx="520" cy="110" r="3"/>
+  <circle class="hub" cx="555" cy="70" r="3"/>
+  <circle class="hub" cx="182" cy="210" r="3"/>
+</svg>
 
 <h1>Krypto-Dashboard <span id="iva-smiley" class="smiley" role="button" tabindex="0" aria-label="Iva is GREAT anzeigen">😊</span></h1>
 <p id="iva-tooltip" class="iva-tooltip">Iva is GREAT</p>
@@ -434,11 +481,6 @@
   <div id="portfolio-zeilen" class="portfolio-zeilen"></div>
   <div id="portfolio-summe" class="portfolio-summe"></div>
 </div>
-
-<p class="chart-titel">7-Tage-Verlauf (%)</p>
-<div id="chart" class="chart"></div>
-<div class="chart-achsen"><span>vor 7 Tagen</span><span>heute</span></div>
-<div id="chart-legende" class="legende"></div>
 
 <div class="video-abschnitt">
   <h2>📱 Tangem erklärt</h2>
@@ -480,17 +522,13 @@
   // /coins/markets liefert Preis, 24h-Veränderung UND das Logo-Bild in einem Aufruf
   const PREIS_URL = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=${ids}&price_change_percentage=24h`;
   const PREIS_ABSTAND_MS = 60000;      // Preise: alle 60 Sekunden
-  const VERLAUF_ABSTAND_MS = 5 * 60000; // 7-Tage-Verlauf: alle 5 Minuten (schont die kostenlose API)
 
   let letzteDaten = null;     // letzte erfolgreich geladene Preisliste
   let letzterErfolg = null;   // Uhrzeit der letzten erfolgreichen Aktualisierung
-  let verlaufsDaten = {};     // coin-id -> Array von Preisen der letzten 7 Tage
   const letztePreise = {};    // coin-id -> zuletzt angezeigter Preis (für Blitz-Animation)
   let ersterAufbau = true;    // true = Karten sollen beim nächsten Zeichnen einblenden
-  let ersteChartAnzeige = true; // true = Linien im Chart sollen beim nächsten Zeichnen einblenden
   const CHART_FARBEN = ["#8c7cf0", "#4fd1c5", "#f6ad55", "#f687b3", "#68d391", "#63b3ed"];
-  // Jedem Coin fest eine Farbe zuordnen (unabhängig von Sortierung), damit
-  // Karten-Akzent und Chart-Linie immer zusammenpassen.
+  // Jedem Coin fest eine Farbe für den Akzentstreifen auf der Karte zuordnen (unabhängig von Sortierung)
   const COIN_FARBEN = {};
   coins.forEach((coin, index) => { COIN_FARBEN[coin.id] = CHART_FARBEN[index % CHART_FARBEN.length]; });
 
@@ -530,7 +568,6 @@
   // Damit die Seite beim Öffnen sofort die letzten bekannten Werte zeigt,
   // statt erst auf die CoinGecko-API warten zu müssen.
   const CACHE_SCHLUESSEL_PREISE = "kd_preise";
-  const CACHE_SCHLUESSEL_VERLAUF = "kd_verlauf";
   // Eigener Schlüssel nur für die Portfolio-Mengen: bleibt ausschließlich im
   // Browser des Nutzers, wird nirgendwo mitgeschickt und landet nie im Code/Repo.
   const CACHE_SCHLUESSEL_PORTFOLIO = "kd_portfolio_mengen";
@@ -573,11 +610,6 @@
       letzterErfolg = preisCache.zeit;
     }
 
-    const verlaufCache = cacheLaden(CACHE_SCHLUESSEL_VERLAUF);
-    if (verlaufCache) {
-      verlaufsDaten = verlaufCache;
-    }
-
     if (letzteDaten) {
       alleAnzeigen();
       const status = document.getElementById("status");
@@ -616,34 +648,6 @@
       });
   }
 
-  // --- 7-Tage-Verlauf laden (für das gemeinsame Liniendiagramm unten) ---
-  // Nacheinander statt gleichzeitig, damit die kostenlose API nicht mit 6 parallelen
-  // Anfragen das Rate-Limit auslöst (führt sonst zu HTTP 429 "Too Many Requests").
-  function warte(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  async function verlaufLaden() {
-    for (const coin of coins) {
-      try {
-        const antwort = await fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=eur&days=7`);
-        if (antwort.ok) {
-          const daten = await antwort.json();
-          if (daten && daten.prices) {
-            verlaufsDaten[coin.id] = daten.prices.map(p => p[1]);
-          }
-        }
-      } catch (fehler) {
-        // einzelner Coin ohne Verlauf ist kein Problem, die anderen laufen weiter
-      }
-      await warte(1500); // kleine Pause zwischen den Anfragen
-    }
-    // Erst wenn alle Coins durch sind, einmal neu zeichnen und cachen –
-    // sonst springt das Liniendiagramm bei jedem einzelnen Coin neu.
-    alleAnzeigen();
-    cacheSpeichern(CACHE_SCHLUESSEL_VERLAUF, verlaufsDaten);
-  }
-
   // Liefert die Coins in der aktuell gewählten Sortierung, jeweils mit den passenden Marktdaten
   function sortierteCoins() {
     if (!letzteDaten) return [];
@@ -673,7 +677,6 @@
 
     kartenZeichnen(eintraege);
     portfolioZeichnen(eintraege);
-    linienChartZeichnen(eintraege);
 
     document.getElementById("karten").style.display = "grid";
     document.getElementById("portfolio-abschnitt").style.display = "block";
@@ -886,64 +889,6 @@
     }
   }
 
-  // Zeichnet ein gemeinsames Liniendiagramm: 7-Tage-Verlauf aller Coins, normiert in % seit Tag 1
-  function linienChartZeichnen(eintraege) {
-    const chart = document.getElementById("chart");
-    const legende = document.getElementById("chart-legende");
-
-    const serien = eintraege
-      .map(({ coin }, index) => {
-        const preise = verlaufsDaten[coin.id];
-        if (!preise || preise.length < 2) return null;
-        const ersterPreis = preise[0];
-        const prozente = preise.map(p => ((p - ersterPreis) / ersterPreis) * 100);
-        return { coin, farbe: COIN_FARBEN[coin.id], prozente };
-      })
-      .filter(Boolean);
-
-    if (serien.length === 0) {
-      chart.innerHTML = '<p style="text-align:center;color:#999">Lade 7-Tage-Verlauf…</p>';
-      legende.innerHTML = "";
-      return;
-    }
-
-    const breite = 600, hoehe = 220, polster = 10;
-    const alleWerte = serien.flatMap(s => s.prozente).concat(0); // 0 immer mit einschließen, damit die Nulllinie sichtbar bleibt
-    const min = Math.min(...alleWerte);
-    const max = Math.max(...alleWerte);
-    const spanne = (max - min) || 1;
-
-    function y(wert) {
-      return hoehe - polster - ((wert - min) / spanne) * (hoehe - 2 * polster);
-    }
-
-    const nullY = y(0).toFixed(1);
-    let svgInhalt = `<line x1="0" y1="${nullY}" x2="${breite}" y2="${nullY}" stroke="#555" stroke-width="1" stroke-dasharray="4 4" />`;
-
-    serien.forEach((serie, index) => {
-      const n = serie.prozente.length;
-      const punkte = serie.prozente.map((wert, i) => {
-        const x = (i / (n - 1)) * breite;
-        return `${x.toFixed(1)},${y(wert).toFixed(1)}`;
-      }).join(" ");
-
-      // Beim allerersten Zeichnen blenden die Linien nacheinander ein, danach nicht mehr
-      const animation = ersteChartAnzeige
-        ? `style="animation-delay:${(index * 0.15).toFixed(2)}s"`
-        : `style="animation:none;opacity:1"`;
-
-      svgInhalt += `<polyline points="${punkte}" fill="none" stroke="${serie.farbe}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="linie" ${animation} />`;
-    });
-
-    chart.innerHTML = `<svg viewBox="0 0 ${breite} ${hoehe}" preserveAspectRatio="none" class="linien-chart">${svgInhalt}</svg>`;
-
-    legende.innerHTML = serien.map(serie =>
-      `<div class="legende-eintrag"><span class="legende-farbe" style="background:${serie.farbe}"></span> ${serie.coin.name}</div>`
-    ).join("");
-
-    ersteChartAnzeige = false;
-  }
-
   // Smiley in der Überschrift: bei Klick/Tipp kurz "Iva is GREAT" einblenden (funktioniert auch auf dem Handy)
   document.getElementById("iva-smiley").addEventListener("click", () => {
     const tooltip = document.getElementById("iva-tooltip");
@@ -955,9 +900,7 @@
 
   cacheWiederherstellen();
   kurseLaden();
-  verlaufLaden();
   setInterval(kurseLaden, PREIS_ABSTAND_MS);
-  setInterval(verlaufLaden, VERLAUF_ABSTAND_MS);
 </script>
 
 </body>
