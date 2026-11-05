@@ -23,7 +23,7 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
   - "Alarm unter [€]" (Stop-Loss-Warnung, von Iva in der Stunde vom 2026-11-04 mündlich ergänzt): sobald aktueller Preis < Schwelle → roter Rahmen + "⚠️ Unter Zielwert"
 
 ## Letzte Änderungen (Commits)
-- *(ausstehend)* – Weltkarten-Hintergrund mit Transfer-Impulsen eingebaut; 7-Tage-Liniendiagramm komplett entfernt (auf Alens Wunsch)
+- `1e75005` – Weltkarten-Hintergrund mit Transfer-Impulsen eingebaut; 7-Tage-Liniendiagramm komplett entfernt (auf Alens Wunsch)
 - `38b8467` – Ladeflackern beim Öffnen behoben; Preisalarm um Stop-Loss-Warnung (Alarm unter, rot) erweitert
 - `d70dd40` – Portfolio-Abschnitt hinzugefügt (Menge pro Coin, Wert nur lokal gespeichert)
 - `25dafcb` – Drei weitere Tangem-Videos (Cold Wallet vs. Börse) hinzugefügt
