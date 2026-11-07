@@ -27,7 +27,7 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
 - Willkommens-Kugel beim Öffnen der Seite: glühende Kugel erscheint mittig, öffnet sich kurz zu einer Kapsel mit "⚡ Willkommen beim Krypto-Dashboard", zieht sich wieder zusammen und verschwindet (~5,5 Sek., generisch für jeden Besucher, kein Name). Erst danach blendet sich der restliche Dashboard-Inhalt ein.
 
 ## Letzte Änderungen (Commits)
-- (ausstehend) – Karte am PC auf `preserveAspectRatio="meet"` umgestellt (responsiv per JS, nur ab 480px Breite), damit USA und Australien nicht mehr am Rand abgeschnitten werden; Handy-Darstellung unverändert
+- `35adb24` – Karte am PC auf `preserveAspectRatio="meet"` umgestellt (responsiv per JS, nur ab 480px Breite), damit USA und Australien nicht mehr am Rand abgeschnitten werden; Handy-Darstellung unverändert
 - `f064dfb` – Länder-Labels auf nur-Flagge (ohne Name) reduziert und zur Kartenmitte hin ausgerichtet, damit nichts mehr am Bildschirmrand abgeschnitten wird; Australien-Hub etwas nach innen gerückt
 - `8424825` – Kartenabstand von fixem px-Wert auf 28vh umgestellt, da er am PC (breiter Bildschirm) nicht ausreichte und der Titel mit dem EU-Label überlappte
 - `4c216b3` – Abstand oben eingebaut, damit die Weltkarte vor dem Dashboard-Inhalt sichtbar ist
