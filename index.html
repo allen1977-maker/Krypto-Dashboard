@@ -366,10 +366,31 @@
     border-color: var(--akzent);
     box-shadow: 0 0 0 2px var(--akzent-glanz);
   }
+  .portfolio-einstieg {
+    width: 100px;
+    background: #2a2a3d;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .portfolio-einstieg:focus {
+    outline: none;
+    border-color: var(--akzent);
+    box-shadow: 0 0 0 2px var(--akzent-glanz);
+  }
   .portfolio-wert {
     flex: 0 0 90px;
     text-align: right;
     font-size: 14px;
+    font-weight: 600;
+  }
+  .portfolio-gv {
+    flex: 0 0 140px;
+    text-align: right;
+    font-size: 13px;
     font-weight: 600;
   }
   .portfolio-summe {
@@ -398,6 +419,23 @@
   }
   .portfolio-gesamt-aenderung.gruen { background: rgba(76, 175, 80, 0.14); }
   .portfolio-gesamt-aenderung.rot { background: rgba(244, 67, 54, 0.14); }
+  .portfolio-gesamt-gv {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+  .portfolio-gesamt-gv.gruen { background: rgba(76, 175, 80, 0.14); }
+  .portfolio-gesamt-gv.rot { background: rgba(244, 67, 54, 0.14); }
+  .portfolio-gv-hinweis {
+    font-size: 11px;
+    color: #999;
+    margin: 8px 0 0;
+  }
 
   .video-abschnitt {
     max-width: 440px;
@@ -448,6 +486,7 @@
     .logo { width: 24px; height: 24px; }
     .portfolio-zeile { flex-wrap: wrap; }
     .portfolio-name { flex: 1 1 100%; }
+    .portfolio-gv { flex: 1 1 100%; text-align: left; }
   }
 </style>
 </head>
@@ -550,7 +589,7 @@
 
 <div id="portfolio-abschnitt" class="portfolio-abschnitt" style="display:none">
   <h2>💰 Mein Portfolio</h2>
-  <p class="portfolio-hinweis">Deine Mengen werden nur in diesem Browser gespeichert (localStorage) – nie im Code oder auf GitHub.</p>
+  <p class="portfolio-hinweis">Deine Mengen und Kaufpreise werden nur in diesem Browser gespeichert (localStorage) – nie im Code oder auf GitHub.</p>
   <div id="portfolio-zeilen" class="portfolio-zeilen"></div>
   <div id="portfolio-summe" class="portfolio-summe"></div>
 </div>
@@ -646,6 +685,10 @@
   // Eigener Schlüssel nur für die Portfolio-Mengen: bleibt ausschließlich im
   // Browser des Nutzers, wird nirgendwo mitgeschickt und landet nie im Code/Repo.
   const CACHE_SCHLUESSEL_PORTFOLIO = "kd_portfolio_mengen";
+  // Eigener Schlüssel nur für die Einstiegspreise (Kaufpreise): bleibt
+  // ausschließlich im Browser des Nutzers, wird nirgendwo mitgeschickt und
+  // landet nie im Code/Repo.
+  const CACHE_SCHLUESSEL_EINSTIEG = "kd_portfolio_einstiegspreise";
   // Eigener Schlüssel nur für die Preisalarme: bleibt ausschließlich im
   // Browser des Nutzers, wird nirgendwo mitgeschickt und landet nie im Code/Repo.
   const CACHE_SCHLUESSEL_ALARM = "kd_preisalarme";
@@ -656,6 +699,8 @@
 
   // Portfolio-Mengen: coin-id -> Anzahl Stück, nur aus localStorage geladen
   let portfolioMengen = cacheLaden(CACHE_SCHLUESSEL_PORTFOLIO) || {};
+  // Einstiegspreise (Kaufpreise): coin-id -> Preis in €, nur aus localStorage geladen
+  let portfolioEinstiegspreise = cacheLaden(CACHE_SCHLUESSEL_EINSTIEG) || {};
   // Preisalarme: coin-id -> Schwellenwert in €, nur aus localStorage geladen
   let preisAlarme = cacheLaden(CACHE_SCHLUESSEL_ALARM) || {};
   // Stop-Loss-Warnungen ("Alarm unter"): coin-id -> Schwellenwert in €, nur aus localStorage geladen
@@ -763,6 +808,30 @@
     cacheSpeichern(CACHE_SCHLUESSEL_PORTFOLIO, portfolioMengen);
   }
 
+  // Speichert einen Einstiegspreis nur lokal im Browser (localStorage) - nie im Code, nie im Repo
+  function portfolioEinstiegSpeichern(coinId, einstiegspreis) {
+    portfolioEinstiegspreise[coinId] = einstiegspreis;
+    cacheSpeichern(CACHE_SCHLUESSEL_EINSTIEG, portfolioEinstiegspreise);
+  }
+
+  // Gewinn/Verlust für einen Coin: nur berechnet, wenn Menge und Einstiegspreis eingetragen sind
+  function portfolioGvBerechnen(coinId, menge, preis) {
+    const einstieg = portfolioEinstiegspreise[coinId];
+    if (!einstieg || einstieg <= 0 || !menge) return null;
+    return {
+      gvEur: (preis - einstieg) * menge,
+      gvProzent: ((preis - einstieg) / einstieg) * 100
+    };
+  }
+
+  // Formatiert das Gewinn/Verlust-Ergebnis als Text mit Pfeil und Vorzeichen
+  function portfolioGvText(gv) {
+    if (!gv) return "";
+    const pfeil = gv.gvEur >= 0 ? "▲" : "▼";
+    const vorzeichen = gv.gvEur >= 0 ? "+" : "";
+    return `${pfeil} ${vorzeichen}${gv.gvEur.toFixed(2)} € (${vorzeichen}${gv.gvProzent.toFixed(1)} %)`;
+  }
+
   // Baut die Eingabezeilen einmalig auf und aktualisiert danach nur noch die
   // Wert-Anzeige, damit das Eingabefeld beim Tippen nicht den Fokus verliert.
   function portfolioZeichnen(eintraege) {
@@ -771,7 +840,10 @@
     eintraege.forEach(({ coin, info }) => {
       const preis = info.current_price;
       const menge = portfolioMengen[coin.id] || 0;
+      const einstieg = portfolioEinstiegspreise[coin.id] || 0;
       const wert = menge * preis;
+      const gv = portfolioGvBerechnen(coin.id, menge, preis);
+      const gvFarbe = gv ? (gv.gvEur >= 0 ? "gruen" : "rot") : "";
 
       let zeile = document.getElementById("portfolio-zeile-" + coin.id);
 
@@ -783,17 +855,29 @@
           <span class="portfolio-name">${coin.name}</span>
           <input type="number" min="0" step="any" inputmode="decimal" class="portfolio-eingabe"
                  id="menge-${coin.id}" placeholder="Menge" value="${menge ? menge : ""}">
+          <input type="number" min="0" step="any" inputmode="decimal" class="portfolio-einstieg"
+                 id="einstieg-${coin.id}" placeholder="Kaufpreis €" value="${einstieg ? einstieg : ""}">
           <span class="portfolio-wert" data-feld="wert">${wert.toFixed(2)} €</span>
+          <span class="portfolio-gv ${gvFarbe}" data-feld="gv">${portfolioGvText(gv)}</span>
         `;
         container.appendChild(zeile);
 
-        zeile.querySelector("input").addEventListener("input", (ereignis) => {
+        zeile.querySelector(".portfolio-eingabe").addEventListener("input", (ereignis) => {
           const neueMenge = parseFloat(ereignis.target.value);
           portfolioMengeSpeichern(coin.id, isNaN(neueMenge) ? 0 : neueMenge);
           alleAnzeigen();
         });
+
+        zeile.querySelector(".portfolio-einstieg").addEventListener("input", (ereignis) => {
+          const neuerEinstieg = parseFloat(ereignis.target.value);
+          portfolioEinstiegSpeichern(coin.id, isNaN(neuerEinstieg) ? 0 : neuerEinstieg);
+          alleAnzeigen();
+        });
       } else {
         zeile.querySelector('[data-feld="wert"]').textContent = wert.toFixed(2) + " €";
+        const gvEl = zeile.querySelector('[data-feld="gv"]');
+        gvEl.textContent = portfolioGvText(gv);
+        gvEl.className = "portfolio-gv" + (gvFarbe ? " " + gvFarbe : "");
       }
     });
 
@@ -806,6 +890,10 @@
     let gesamtWert = 0;
     let gesamtAenderungEur = 0;
     let hatMengen = false;
+    let gesamtGvEur = 0;
+    let gesamtEinstiegswert = 0;
+    let hatEinstiegspreise = false;
+    let fehltEinstiegspreisBeiMenge = false;
 
     eintraege.forEach(({ coin, info }) => {
       const menge = portfolioMengen[coin.id] || 0;
@@ -821,6 +909,15 @@
         const preisVor24h = preis / faktor;
         gesamtAenderungEur += menge * (preis - preisVor24h);
       }
+
+      const gv = portfolioGvBerechnen(coin.id, menge, preis);
+      if (gv) {
+        hatEinstiegspreise = true;
+        gesamtGvEur += gv.gvEur;
+        gesamtEinstiegswert += menge * portfolioEinstiegspreise[coin.id];
+      } else if (menge > 0) {
+        fehltEinstiegspreisBeiMenge = true;
+      }
     });
 
     if (!hatMengen) {
@@ -832,9 +929,22 @@
     const pfeil = gesamtAenderungEur >= 0 ? "▲" : "▼";
     const vorzeichen = gesamtAenderungEur >= 0 ? "+" : "";
 
+    let gvHtml = "";
+    if (hatEinstiegspreise) {
+      const gvProzent = gesamtEinstiegswert > 0 ? (gesamtGvEur / gesamtEinstiegswert) * 100 : 0;
+      const gvFarbe = gesamtGvEur >= 0 ? "gruen" : "rot";
+      const gvPfeil = gesamtGvEur >= 0 ? "▲" : "▼";
+      const gvVorzeichen = gesamtGvEur >= 0 ? "+" : "";
+      gvHtml = `<div class="portfolio-gesamt-gv ${gvFarbe}">${gvPfeil} ${gvVorzeichen}${gesamtGvEur.toFixed(2)} € (${gvVorzeichen}${gvProzent.toFixed(1)} %) Gewinn/Verlust gesamt</div>`;
+      if (fehltEinstiegspreisBeiMenge) {
+        gvHtml += '<p class="portfolio-gv-hinweis">Hinweis: Bei mindestens einem Coin mit eingetragener Menge fehlt noch der Kaufpreis – die Gesamtsumme bezieht sich nur auf Coins mit eingetragenem Kaufpreis.</p>';
+      }
+    }
+
     summeEl.innerHTML = `
       <div class="portfolio-gesamt-wert">Gesamtwert: <strong>${gesamtWert.toFixed(2)} €</strong></div>
       <div class="portfolio-gesamt-aenderung ${farbe}">${pfeil} ${vorzeichen}${gesamtAenderungEur.toFixed(2)} € heute</div>
+      ${gvHtml}
     `;
   }
 
