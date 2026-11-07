@@ -1,6 +1,6 @@
 # Fortschritt – Krypto-Dashboard
 
-Stand: 2026-11-07 (Auto-Refresh auf 15 Minuten umgestellt)
+Stand: 2026-11-07 (Länder-Labels auf Hintergrundkarte ergänzt)
 
 ## Was ist das Projekt?
 Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Network, VELO, Canton Network, Zebec Network, SHX Stronghold). Lernprojekt von Alen mit Claude als Tutor.
@@ -15,7 +15,7 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
 - Farbiger Akzentstreifen auf jeder Coin-Karte
 - Kurse werden im Browser zwischengespeichert (localStorage) – beim Öffnen sofort sichtbar, danach Hintergrund-Update
 - Auto-Refresh alle 15 Minuten (vorher 60 Sekunden, auf Alens Wunsch verlängert); Statuszeile zeigt nur noch "Stand: [Uhrzeit]", ohne Refresh-Hinweis im Text
-- Fester Hintergrund über die ganze Seite: stilisierte Punkt-Weltkarte mit 5 Hubs (Städten) und animierten Transfer-Impulsen, die zwischen den Hubs entlanglaufen. Reines SVG/CSS (`position: fixed`, hinter allem Inhalt), keine zusätzliche Bibliothek.
+- Fester Hintergrund über die ganze Seite: stilisierte Punkt-Weltkarte mit 7 Hubs (inkl. Afrika und Australien) und animierten Transfer-Impulsen, die zwischen den Hubs entlanglaufen. Reines SVG/CSS (`position: fixed`, hinter allem Inhalt), keine zusätzliche Bibliothek. Dezente Länder-Labels (Flagge + Name) zur Orientierung: 🇺🇸 Amerika, 🇧🇷 Lateinamerika, 🇪🇺 EU, 🇨🇭 Schweiz, 🇷🇺 Russland, Afrika, 🇦🇺 Australien.
 - Abschnitt "📱 Tangem erklärt": 4 Erklärvideos (Hochformat, responsives Grid) + Link zu Alens Tangem-Pro-Code
 - Abschnitt "💰 Mein Portfolio": Menge je Coin eintragen, Dashboard zeigt Wert je Coin, Gesamtwert und heutige Veränderung in Euro. Mengen liegen **nur im Browser** (localStorage), nie im Code/Repo (Repo ist public). Live auf GitHub Pages (Commit `d70dd40`).
 - Portfolio zusätzlich mit Einstiegspreis (Kaufpreis €) je Coin und Gewinn/Verlust-Anzeige (€ und %, grün/rot) pro Coin und als Gesamtsumme. Eigener localStorage-Key `kd_portfolio_einstiegspreise`, getrennt von den Mengen. Fehlt bei einem Coin der Kaufpreis, erscheint ein Hinweistext, dass die Gesamtsumme nur die Coins mit Kaufpreis umfasst. Live auf GitHub Pages (Commit `7c5ba9b`).
@@ -25,6 +25,7 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
 - Willkommens-Kugel beim Öffnen der Seite: glühende Kugel erscheint mittig, öffnet sich kurz zu einer Kapsel mit "⚡ Willkommen beim Krypto-Dashboard", zieht sich wieder zusammen und verschwindet (~5,5 Sek., generisch für jeden Besucher, kein Name). Erst danach blendet sich der restliche Dashboard-Inhalt ein.
 
 ## Letzte Änderungen (Commits)
+- (ausstehend) – Länder-Labels (Flaggen + Namen) auf Hintergrundkarte ergänzt; Afrika und Australien bekommen eigene Hubs mit Verbindung + Signal
 - `ff91b6d` – Sichtbaren Status-Text "(Auto-Refresh alle 60 Sek.)" entfernt, Statuszeile zeigt nur noch "Stand: [Uhrzeit]"
 - `496c4e0` – Auto-Refresh-Intervall von 60 Sekunden auf 15 Minuten umgestellt
 - `7c5ba9b` – Einstiegspreis (Kaufpreis €) und Gewinn/Verlust-Anzeige im Portfolio ergänzt

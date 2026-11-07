@@ -56,6 +56,11 @@
     fill: #4fd1c5;
     filter: drop-shadow(0 0 3px rgba(79, 209, 197, 1));
   }
+  .welt-hintergrund .land-label {
+    fill: rgba(190, 180, 255, 0.75);
+    font-size: 8px;
+    font-family: inherit;
+  }
   h1 {
     text-align: center;
     font-size: 26px;
@@ -544,6 +549,8 @@
   <path id="route3" class="verbindung" d="M520,110 Q545,50 555,70"/>
   <path id="route4" class="verbindung" d="M555,70 Q320,5 90,85"/>
   <path id="route5" class="verbindung" d="M182,210 Q130,150 90,85"/>
+  <path id="route6" class="verbindung" d="M520,110 Q560,170 605,230"/>
+  <path id="route7" class="verbindung" d="M335,60 Q345,100 345,145"/>
 
   <!-- Wandernde Impuls-Punkte (die "Transfers") -->
   <circle class="impuls" r="2.5">
@@ -561,6 +568,12 @@
   <circle class="impuls" r="2.5">
     <animateMotion dur="3s" begin="2.1s" repeatCount="indefinite"><mpath href="#route5"/></animateMotion>
   </circle>
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="3.4s" begin="0.9s" repeatCount="indefinite"><mpath href="#route6"/></animateMotion>
+  </circle>
+  <circle class="impuls" r="2.5">
+    <animateMotion dur="2.8s" begin="1.4s" repeatCount="indefinite"><mpath href="#route7"/></animateMotion>
+  </circle>
 
   <!-- Hubs (Städte) -->
   <circle class="hub" cx="90" cy="85" r="3"/>
@@ -568,6 +581,17 @@
   <circle class="hub" cx="520" cy="110" r="3"/>
   <circle class="hub" cx="555" cy="70" r="3"/>
   <circle class="hub" cx="182" cy="210" r="3"/>
+  <circle class="hub" cx="605" cy="230" r="3"/>
+  <circle class="hub" cx="345" cy="145" r="3"/>
+
+  <!-- Länder-Labels (Flagge + Name), dezent zur Orientierung auf der Karte -->
+  <text class="land-label" x="40" y="43" text-anchor="start">🇺🇸 Amerika</text>
+  <text class="land-label" x="155" y="200" text-anchor="end">Lateinamerika 🇧🇷</text>
+  <text class="land-label" x="347" y="40" text-anchor="middle">🇪🇺 EU</text>
+  <text class="land-label" x="377" y="86" text-anchor="start">🇨🇭 Schweiz</text>
+  <text class="land-label" x="400" y="36" text-anchor="start">🇷🇺 Russland</text>
+  <text class="land-label" x="300" y="146" text-anchor="end">Afrika</text>
+  <text class="land-label" x="605" y="204" text-anchor="middle">🇦🇺 Australien</text>
 </svg>
 
 <h1>Krypto-Dashboard <span id="iva-smiley" class="smiley" role="button" tabindex="0" aria-label="Iva is GREAT anzeigen">😊</span></h1>
