@@ -507,7 +507,7 @@
 
 <div id="inhalt">
 
-<svg class="welt-hintergrund" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<svg id="welt-karte-svg" class="welt-hintergrund" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
   <g class="kontinent-punkte">
     <!-- Nordamerika -->
     <circle cx="70" cy="60" r="1.6"/><circle cx="85" cy="55" r="1.6"/><circle cx="100" cy="50" r="1.6"/><circle cx="115" cy="55" r="1.6"/>
@@ -1107,6 +1107,17 @@
   });
 
   document.getElementById("sortierung").addEventListener("change", alleAnzeigen);
+
+  // Weltkarte: am Handy (schmaler Bildschirm) wird die Karte wie bisher bildschirmfüllend
+  // zugeschnitten ("slice"). Am PC (breiter Bildschirm) wird sie stattdessen komplett
+  // eingepasst ("meet", etwas kleiner/verkleinert dargestellt), damit auch die Flaggen
+  // am linken/rechten Rand (USA, Australien) nicht abgeschnitten werden.
+  function karteAnpassen() {
+    const karteSvg = document.getElementById("welt-karte-svg");
+    if (!karteSvg) return;
+    karteSvg.setAttribute("preserveAspectRatio", window.innerWidth <= 480 ? "xMidYMid slice" : "xMidYMid meet");
+  }
+  karteAnpassen();
 
   // Willkommens-Kugel zuerst allein zeigen (5.5s, siehe CSS-Animation "kugelAblauf"),
   // erst danach den restlichen Dashboard-Inhalt einblenden und die Kugel entfernen.
