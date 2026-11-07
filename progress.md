@@ -1,6 +1,6 @@
 # Fortschritt – Krypto-Dashboard
 
-Stand: 2026-11-07 (Länder-Labels auf Hintergrundkarte ergänzt)
+Stand: 2026-11-07 (Weltkarte responsiv gemacht, von Alen auf PC und Handy geprüft und für gut befunden)
 
 ## Was ist das Projekt?
 Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Network, VELO, Canton Network, Zebec Network, SHX Stronghold). Lernprojekt von Alen mit Claude als Tutor.
