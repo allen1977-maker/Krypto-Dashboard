@@ -66,6 +66,7 @@
     font-size: 26px;
     color: var(--akzent);
     text-shadow: 0 0 20px var(--akzent-glanz);
+    margin-top: 90px; /* Platz lassen, damit die Weltkarte oben sichtbar bleibt */
   }
 
   /* --- Willkommens-Kugel: kurze Begrüßung mittig auf dem Bildschirm beim Öffnen der Seite --- */
@@ -482,7 +483,7 @@
   /* Mobile-Anpassungen für kleine Bildschirme */
   @media (max-width: 480px) {
     body { padding: 10px; }
-    h1 { font-size: 20px; }
+    h1 { font-size: 20px; margin-top: 60px; }
     #status { font-size: 12px; }
     .steuerung { font-size: 12px; }
     .karten-grid { grid-template-columns: 1fr; gap: 12px; }
