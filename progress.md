@@ -25,7 +25,7 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
 - Willkommens-Kugel beim Öffnen der Seite: glühende Kugel erscheint mittig, öffnet sich kurz zu einer Kapsel mit "⚡ Willkommen beim Krypto-Dashboard", zieht sich wieder zusammen und verschwindet (~5,5 Sek., generisch für jeden Besucher, kein Name). Erst danach blendet sich der restliche Dashboard-Inhalt ein.
 
 ## Letzte Änderungen (Commits)
-- (ausstehend) – Sichtbaren Status-Text "(Auto-Refresh alle 60 Sek.)" entfernt, Statuszeile zeigt nur noch "Stand: [Uhrzeit]"
+- `ff91b6d` – Sichtbaren Status-Text "(Auto-Refresh alle 60 Sek.)" entfernt, Statuszeile zeigt nur noch "Stand: [Uhrzeit]"
 - `496c4e0` – Auto-Refresh-Intervall von 60 Sekunden auf 15 Minuten umgestellt
 - `7c5ba9b` – Einstiegspreis (Kaufpreis €) und Gewinn/Verlust-Anzeige im Portfolio ergänzt
 - `def0883` – Willkommens-Kugel beim Öffnen des Dashboards eingebaut (zuerst Begrüßungsanimation allein, danach Rest-Inhalt einblenden)
