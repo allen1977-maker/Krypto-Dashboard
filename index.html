@@ -635,7 +635,7 @@
   const ids = coins.map(c => c.id).join(",");
   // /coins/markets liefert Preis, 24h-Veränderung UND das Logo-Bild in einem Aufruf
   const PREIS_URL = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=${ids}&price_change_percentage=24h`;
-  const PREIS_ABSTAND_MS = 60000;      // Preise: alle 60 Sekunden
+  const PREIS_ABSTAND_MS = 900000;     // Preise: alle 15 Minuten
 
   let letzteDaten = null;     // letzte erfolgreich geladene Preisliste
   let letzterErfolg = null;   // Uhrzeit der letzten erfolgreichen Aktualisierung
