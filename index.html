@@ -756,7 +756,7 @@
         cacheSpeichern(CACHE_SCHLUESSEL_PREISE, { daten: letzteDaten, zeit: letzterErfolg });
 
         const status = document.getElementById("status");
-        status.textContent = "Stand: " + letzterErfolg + " (Auto-Refresh alle 60 Sek.)";
+        status.textContent = "Stand: " + letzterErfolg;
         status.classList.remove("fehler");
       })
       .catch(fehler => {
