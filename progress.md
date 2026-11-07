@@ -26,7 +26,7 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
 - Willkommens-Kugel beim Öffnen der Seite: glühende Kugel erscheint mittig, öffnet sich kurz zu einer Kapsel mit "⚡ Willkommen beim Krypto-Dashboard", zieht sich wieder zusammen und verschwindet (~5,5 Sek., generisch für jeden Besucher, kein Name). Erst danach blendet sich der restliche Dashboard-Inhalt ein.
 
 ## Letzte Änderungen (Commits)
-- (ausstehend) – Abstand oben eingebaut, damit die Weltkarte vor dem Dashboard-Inhalt sichtbar ist
+- `4c216b3` – Abstand oben eingebaut, damit die Weltkarte vor dem Dashboard-Inhalt sichtbar ist
 - `7ef5089` – Länder-Labels (Flaggen + Namen) auf Hintergrundkarte ergänzt; Afrika und Australien bekommen eigene Hubs mit Verbindung + Signal
 - `ff91b6d` – Sichtbaren Status-Text "(Auto-Refresh alle 60 Sek.)" entfernt, Statuszeile zeigt nur noch "Stand: [Uhrzeit]"
 - `496c4e0` – Auto-Refresh-Intervall von 60 Sekunden auf 15 Minuten umgestellt
