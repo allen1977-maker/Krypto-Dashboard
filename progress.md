@@ -1,6 +1,6 @@
 # Fortschritt – Krypto-Dashboard
 
-Stand: 2026-11-07 (Weltkarte responsiv gemacht, von Alen auf PC und Handy geprüft und für gut befunden)
+Stand: 2026-11-14 (zwei weitere lokale Claude-Skills geprüft und eingerichtet: `video-edit` und `coingecko`, siehe Abschnitt "Lokale Claude-Skills" unten; beide erfolgreich getestet)
 
 ## Was ist das Projekt?
 Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Network, VELO, Canton Network, Zebec Network, SHX Stronghold). Lernprojekt von Alen mit Claude als Tutor.
@@ -25,6 +25,13 @@ Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Net
   - "Alarm ab [€]": sobald aktueller Preis ≥ Schwelle → kräftiger gelber Rahmen + "✅ Ziel erreicht"
   - "Alarm unter [€]" (Stop-Loss-Warnung, von Iva in der Stunde vom 2026-11-04 mündlich ergänzt): sobald aktueller Preis < Schwelle → roter Rahmen + "⚠️ Unter Zielwert"
 - Willkommens-Kugel beim Öffnen der Seite: glühende Kugel erscheint mittig, öffnet sich kurz zu einer Kapsel mit "⚡ Willkommen beim Krypto-Dashboard", zieht sich wieder zusammen und verschwindet (~5,5 Sek., generisch für jeden Besucher, kein Name). Erst danach blendet sich der restliche Dashboard-Inhalt ein.
+
+## Lokale Claude-Skills
+Liegen in `.claude/skills/` im Projektordner. Reine Werkzeuge für die Arbeit mit Claude an diesem Projekt – kein Teil der Website, nichts davon läuft im Browser der Besucher.
+- `mein-portfolio` – eigener Skill, fragt im Terminal je Coin nach der Menge, holt Live-Kurse, zeigt Tabelle + Gesamtsumme. Speichert nichts.
+- `veroeffentlichen` – eigener Skill, prüft vor dem Veröffentlichen auf private Daten, schreibt in progress.md, committet, fragt vor dem Push nach Bestätigung.
+- `video-edit` – von GitHub (agricidaniel/claude-video, nur den Unterordner `skills/video-edit` übernommen, nicht das ganze Repo wegen dessen globaler Hooks) für Videoschnitt (trimmen, Tempo, Overlays, Gesichter unkenntlich machen usw.) über FFmpeg. Am 2026-11-14 erfolgreich getestet: erstes Tangem-Video probeweise auf 49,5 Sek. gekürzt, um den veralteten Angebots-Screen zu entfernen (nur Übung, nicht live übernommen).
+- `coingecko` – offizieller Skill von github.com/coingecko/skills, hilft Claude, bei Fragen zu Krypto-Marktdaten die richtigen CoinGecko-API-Endpunkte zu finden statt zu raten. Am 2026-11-14 erfolgreich getestet (Marktkapitalisierung XDC Network, 7-Tage-Verlauf Stellar).
 
 ## Letzte Änderungen (Commits)
 - `8c0966c` – Neuer Claude-Skill `/mein-portfolio` angelegt (`.claude/skills/mein-portfolio/SKILL.md`): fragt im Terminal je Coin nach der Menge, holt Live-Kurse von CoinGecko, zeigt Tabelle und Gesamtsumme im Terminal aus; speichert nichts (keine Datei, kein Log)
