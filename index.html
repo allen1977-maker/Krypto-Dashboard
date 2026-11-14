@@ -34,6 +34,7 @@
     z-index: -1;
     pointer-events: none;
     opacity: 0.55;
+    object-fit: cover;
   }
   .welt-hintergrund .kontinent-punkte {
     fill: rgba(140, 124, 240, 0.35);
@@ -507,7 +508,11 @@
 
 <div id="inhalt">
 
-<svg id="welt-karte-svg" class="welt-hintergrund" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<!-- TEST: Video-Hintergrund statt Weltkarte, zum Ausprobieren. SVG bleibt erhalten (nur ausgeblendet) für schnelles Zurückschalten. -->
+<video class="welt-hintergrund" autoplay muted loop playsinline aria-hidden="true">
+  <source src="hintergrund-video.mp4" type="video/mp4">
+</video>
+<svg id="welt-karte-svg" class="welt-hintergrund" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="display:none">
   <g class="kontinent-punkte">
     <!-- Nordamerika -->
     <circle cx="70" cy="60" r="1.6"/><circle cx="85" cy="55" r="1.6"/><circle cx="100" cy="50" r="1.6"/><circle cx="115" cy="55" r="1.6"/>
