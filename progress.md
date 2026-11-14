@@ -1,6 +1,6 @@
 # Fortschritt – Krypto-Dashboard
 
-Stand: 2026-11-14 (zwei weitere lokale Claude-Skills geprüft und eingerichtet: `video-edit` und `coingecko`, siehe Abschnitt "Lokale Claude-Skills" unten; beide erfolgreich getestet)
+Stand: 2026-11-14 (mit dem neuen `video-edit`-Skill zwei fertige Tangem-Highlight-Videos für TikTok/Dashboard gebaut, DE+EN, je ~80 Sek.; liegen noch außerhalb des Projektordners, warten auf Alens Sichtung)
 
 ## Was ist das Projekt?
 Ein eigenes HTML-Dashboard mit Live-Krypto-Kursen (6 Coins: Stellar/XLM, XDC Network, VELO, Canton Network, Zebec Network, SHX Stronghold). Lernprojekt von Alen mit Claude als Tutor.
@@ -32,6 +32,14 @@ Liegen in `.claude/skills/` im Projektordner. Reine Werkzeuge für die Arbeit mi
 - `veroeffentlichen` – eigener Skill, prüft vor dem Veröffentlichen auf private Daten, schreibt in progress.md, committet, fragt vor dem Push nach Bestätigung.
 - `video-edit` – von GitHub (agricidaniel/claude-video, nur den Unterordner `skills/video-edit` übernommen, nicht das ganze Repo wegen dessen globaler Hooks) für Videoschnitt (trimmen, Tempo, Overlays, Gesichter unkenntlich machen usw.) über FFmpeg. Am 2026-11-14 erfolgreich getestet: erstes Tangem-Video probeweise auf 49,5 Sek. gekürzt, um den veralteten Angebots-Screen zu entfernen (nur Übung, nicht live übernommen).
 - `coingecko` – offizieller Skill von github.com/coingecko/skills, hilft Claude, bei Fragen zu Krypto-Marktdaten die richtigen CoinGecko-API-Endpunkte zu finden statt zu raten. Am 2026-11-14 erfolgreich getestet (Marktkapitalisierung XDC Network, 7-Tage-Verlauf Stellar).
+
+## Tangem-Highlight-Video (TikTok + evtl. Dashboard)
+Auf Alens Wunsch aus seinem TikTok-Rohmaterial (Zip-Datei mit ~60 eigenen Videos/Fotos, aus Downloads entpackt in einen eigenen Ordner `C:\Users\allen\tangem-videos-rohmaterial\`, **nicht** im Projektordner) zwei fertige Zusammenfassungs-Videos gebaut:
+- `tangem_highlight_DE.mp4` (82,6 Sek.) und `tangem_highlight_EN.mp4` (77,9 Sek.), in `tangem-videos-rohmaterial/build/`.
+- Aufbau: Hook ("Exchange gehackt") aus `tangem_panik_cafe_*` → ausführlicher Erklärteil (wasserdicht, EAL6+ Sicherheitschip, mobiles Kaufen/Verkaufen, Face ID) aus `tangem_erklaert_hell_faceid_*` → neue Abschluss-Karte mit nur dem Link `tangem.com/invite/ALEN` (bewusst ohne Rabatt-% oder Datum, da die alte Promo-Karte in allen Original-Videos ein abgelaufenes Datum "17. Oktober 2026" zeigte).
+- Musik komplett ersetzt: lizenzfreie Spannungsmusik (Pixabay, `sub_clair`) beim Börsen-Crash-Hook, Übergang zu einer lizenzfreien "Für Elise"-Aufnahme (Pixabay, `konstantinpazuzustudio`) sobald die Cold-Wallet-Lösung kommt.
+- **Wichtiger Lerneffekt:** `ffmpeg -ss <Zeit> -i Datei` (Suche vor `-i`) springt beim schnellen Suchen ungenau auf einen nahen Keyframe und kann Vorschaubilder mehrere Sekunden daneben zeigen. Für exakte Schnittpunkte (z. B. "letzter Frame vor einer Überblendung") immer `-i Datei -ss <Zeit>` (Suche nach `-i`) verwenden, auch wenn es langsamer ist. In diesem Fall hätte die schnelle Variante sonst zweimal einen Rest der alten, abgelaufenen Promo-Karte mit ins fertige Video gelassen (erst bei einer zweiten, genauen Prüfung bemerkt und korrigiert).
+- Noch **nicht** committet, nicht live, nicht auf TikTok gepostet – Alen will es sich erst ansehen, bevor entschieden wird, ob/wo es verwendet wird.
 
 ## Letzte Änderungen (Commits)
 - `8c0966c` – Neuer Claude-Skill `/mein-portfolio` angelegt (`.claude/skills/mein-portfolio/SKILL.md`): fragt im Terminal je Coin nach der Menge, holt Live-Kurse von CoinGecko, zeigt Tabelle und Gesamtsumme im Terminal aus; speichert nichts (keine Datei, kein Log)
