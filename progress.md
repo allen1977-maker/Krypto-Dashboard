@@ -1,5 +1,22 @@
 # Fortschritt – Krypto-Dashboard
 
+## Aktueller Stand
+Dashboard läuft live auf GitHub Pages (6 Coins, Portfolio mit Gewinn/Verlust, Preisalarm, Video-Hintergrund, Tangem-Erklärvideos). Lokale Skills: `mein-portfolio`, `veroeffentlichen`, `video-edit`, `wochenrueckblick` (plus `coingecko`, inzwischen global statt im Projekt). Stand sonst wie zuletzt am 2026-11-14 (siehe Update unten).
+
+## Nächster Schritt
+Laut Iva (Stunde 2026-11-17): Claude alle Progress-Dateien lesen lassen und nach drei hilfreichen Skills fragen, einen davon bauen. Danach mit Iva eine Aufgabe am Dashboard suchen, die ein Agent selbstständig erledigen könnte (Thema der nächsten Stunde, Do. 19.11.2026).
+
+## To-do-Liste
+- [ ] Drei Skill-Vorschläge von Claude einholen und einen davon bauen (bis 19.11.2026)
+- [ ] Mit Iva eine Agenten-Aufgabe am Dashboard finden (Thema nächste Stunde)
+- [ ] Skill `coingecko` ggf. wieder entfernen (laut Iva bisher überflüssig, da Dashboard/„Mein Portfolio" dasselbe schon können)
+- [ ] Standardwerte für die Preisalarm-Schwellen im Code festlegen
+- [ ] Handy-Fernzugriff auf Claude Code klären (noch nicht besprochen)
+- [x] Progress-Datei auf dieses Kopf-Format umgebaut (2026-11-17)
+- [x] Iva den Link zu den Episoden-Videos geschickt (2026-11-17, von Alen selbst)
+
+---
+
 Stand: 2026-11-14 (Hintergrund von Weltkarte auf Video umgestellt: Reisfeld/Nachthimmel-Clip, von Alen nach Vergleichstest am Handy ausgewählt; alte Weltkarte bleibt als Reserve im Code)
 
 ## Was ist das Projekt?
@@ -31,7 +48,9 @@ Liegen in `.claude/skills/` im Projektordner. Reine Werkzeuge für die Arbeit mi
 - `mein-portfolio` – eigener Skill, fragt im Terminal je Coin nach der Menge, holt Live-Kurse, zeigt Tabelle + Gesamtsumme. Speichert nichts.
 - `veroeffentlichen` – eigener Skill, prüft vor dem Veröffentlichen auf private Daten, schreibt in progress.md, committet, fragt vor dem Push nach Bestätigung.
 - `video-edit` – von GitHub (agricidaniel/claude-video, nur den Unterordner `skills/video-edit` übernommen, nicht das ganze Repo wegen dessen globaler Hooks) für Videoschnitt (trimmen, Tempo, Overlays, Gesichter unkenntlich machen usw.) über FFmpeg. Am 2026-11-14 erfolgreich getestet: erstes Tangem-Video probeweise auf 49,5 Sek. gekürzt, um den veralteten Angebots-Screen zu entfernen (nur Übung, nicht live übernommen).
-- `coingecko` – offizieller Skill von github.com/coingecko/skills, hilft Claude, bei Fragen zu Krypto-Marktdaten die richtigen CoinGecko-API-Endpunkte zu finden statt zu raten. Am 2026-11-14 erfolgreich getestet (Marktkapitalisierung XDC Network, 7-Tage-Verlauf Stellar).
+- `wochenrueckblick` – eigener Skill, als Lernbeispiel für Iva's Stunde gebaut: liest das Git-Log der letzten 7 Tage und `progress.md`, fasst beides zu einem kurzen Wochenbericht im Terminal zusammen. Reiner Lese-Skill, speichert/committet/pusht nichts. Am 2026-11-14 erfolgreich getestet (26 Commits der Vorwoche korrekt zusammengefasst).
+
+**Update 2026-11-17:** `coingecko` (offizieller Skill von github.com/coingecko/skills, hilft Claude bei Fragen zu Krypto-Marktdaten die richtigen CoinGecko-API-Endpunkte zu finden statt zu raten) ist nicht mehr hier gelistet, weil Alen ihn von `.claude/skills/coingecko/` (Projektordner) nach `C:\Users\allen\.claude\skills\coingecko\` (globaler Claude-Code-Ordner) verschoben hat. Davor wurde der Skill-Inhalt (SKILL.md + LICENSE-quelle.txt) komplett geprüft: reine Lese-Abfragen an offizielle CoinGecko-Domains, keine lokalen Datei-Schreib-/Löschvorgänge, keine versteckte Datenweitergabe. Steht jetzt projektübergreifend in jedem Verzeichnis zur Verfügung, nicht mehr nur im Krypto-Dashboard.
 
 ## Tangem-Highlight-Video (TikTok + evtl. Dashboard)
 Auf Alens Wunsch aus seinem TikTok-Rohmaterial (Zip-Datei mit ~60 eigenen Videos/Fotos, aus Downloads entpackt in einen eigenen Ordner `C:\Users\allen\tangem-videos-rohmaterial\`, **nicht** im Projektordner) zwei fertige Zusammenfassungs-Videos gebaut:
@@ -42,6 +61,7 @@ Auf Alens Wunsch aus seinem TikTok-Rohmaterial (Zip-Datei mit ~60 eigenen Videos
 - Update: Beide Videos sind jetzt live im Abschnitt "📱 Tangem erklärt" eingebaut und ersetzen dort die bisherigen 4 Einzelvideos (`tangem_erklaert_hell_EN_9x16.mp4`, `tangem_ledger_seedless_9x16_EN.mp4`, `tangem_werbung_coldwallet_1.mp4`, `tangem_werbung_coldwallet_2.mp4` aus dem Repo entfernt, bleiben aber in der Git-Historie erhalten). Alen hat die Live-Seite geprüft und bestätigt ("passt"). Noch nicht separat auf TikTok gepostet.
 
 ## Letzte Änderungen (Commits)
+- *(Hash folgt)* – `progress.md` auf neues Kopf-Format umgebaut (Aktueller Stand/Nächster Schritt/To-do-Liste oben, Rest unverändert darunter); Skill `coingecko` aus dem Projekt entfernt (liegt jetzt global), neuer Skill `wochenrueckblick` ergänzt
 - `8c0966c` – Neuer Claude-Skill `/mein-portfolio` angelegt (`.claude/skills/mein-portfolio/SKILL.md`): fragt im Terminal je Coin nach der Menge, holt Live-Kurse von CoinGecko, zeigt Tabelle und Gesamtsumme im Terminal aus; speichert nichts (keine Datei, kein Log)
 - `137c078` – Neuer Claude-Skill `/veroeffentlichen` angelegt (`.claude/skills/veroeffentlichen/SKILL.md`): prüft vor jedem Veröffentlichen automatisch auf private Daten (Mengen, Kaufpreise, Alarme, Schlüssel), schreibt in progress.md, committet auf Deutsch, fragt vor dem Push nach Bestätigung, nennt am Ende Commit-Hash + Handy-Erinnerung
 - `35adb24` – Karte am PC auf `preserveAspectRatio="meet"` umgestellt (responsiv per JS, nur ab 480px Breite), damit USA und Australien nicht mehr am Rand abgeschnitten werden; Handy-Darstellung unverändert
