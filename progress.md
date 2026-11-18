@@ -7,10 +7,10 @@ Dashboard läuft live auf GitHub Pages (6 Coins, Portfolio mit Gewinn/Verlust, P
 Laut Iva (Stunde 2026-11-17): Claude alle Progress-Dateien lesen lassen und nach drei hilfreichen Skills fragen, einen davon bauen. Danach mit Iva eine Aufgabe am Dashboard suchen, die ein Agent selbstständig erledigen könnte (Thema der nächsten Stunde, Do. 19.11.2026).
 
 ## To-do-Liste
-- [ ] Drei Skill-Vorschläge von Claude einholen und einen davon bauen (bis 19.11.2026)
 - [ ] Mit Iva eine Agenten-Aufgabe am Dashboard finden (Thema nächste Stunde)
 - [ ] Standardwerte für die Preisalarm-Schwellen im Code festlegen
 - [ ] Handy-Fernzugriff auf Claude Code klären (noch nicht besprochen)
+- [x] Drei Skill-Vorschläge von Claude eingeholt und einen davon gebaut (2026-11-18): `preisalarm-vorschlag` – siehe unten
 - [x] Progress-Datei auf dieses Kopf-Format umgebaut (2026-11-17)
 - [x] Iva den Link zu den Episoden-Videos geschickt (2026-11-17, von Alen selbst)
 
@@ -48,6 +48,7 @@ Liegen in `.claude/skills/` im Projektordner. Reine Werkzeuge für die Arbeit mi
 - `veroeffentlichen` – eigener Skill, prüft vor dem Veröffentlichen auf private Daten, schreibt in progress.md, committet, fragt vor dem Push nach Bestätigung.
 - `video-edit` – von GitHub (agricidaniel/claude-video, nur den Unterordner `skills/video-edit` übernommen, nicht das ganze Repo wegen dessen globaler Hooks) für Videoschnitt (trimmen, Tempo, Overlays, Gesichter unkenntlich machen usw.) über FFmpeg. Am 2026-11-14 erfolgreich getestet: erstes Tangem-Video probeweise auf 49,5 Sek. gekürzt, um den veralteten Angebots-Screen zu entfernen (nur Übung, nicht live übernommen).
 - `coingecko` – offizieller Skill von github.com/coingecko/skills, hilft Claude, bei Fragen zu Krypto-Marktdaten die richtigen CoinGecko-API-Endpunkte zu finden statt zu raten. Am 2026-11-14 erfolgreich getestet (Marktkapitalisierung XDC Network, 7-Tage-Verlauf Stellar). Liegt seit 2026-11-17 zusätzlich global (`C:\Users\allen\.claude\skills\coingecko\`), bleibt aber auch hier im Projekt.
+- `preisalarm-vorschlag` – neuer Skill (2026-11-18, Hausaufgabe von Iva aus der Stunde vom 17.11.: drei Skill-Vorschläge einholen, einen bauen). Holt Live-Kurse der 6 Coins, schlägt Standard-Schwellen für "Alarm ab"/"Alarm unter" vor (z. B. ±10 % vom aktuellen Kurs) und zeigt sie als Tabelle im Terminal. Speichert nichts automatisch; ändert den Code nur nach ausdrücklicher Bestätigung (dann nur als `placeholder`-Beispieltext, nie als echter gespeicherter Wert).
 
 **Update 2026-11-17:** Skill `wochenrueckblick` (liest Git-Log der letzten 7 Tage + `progress.md`, fasst beides im Terminal zusammen) liegt als Datei im Ordner `.claude/skills/wochenrueckblick/`, wird aber vorerst **nicht** als aktiver Projekt-Skill genutzt – Alen hat sich stattdessen für `coingecko` entschieden.
 
